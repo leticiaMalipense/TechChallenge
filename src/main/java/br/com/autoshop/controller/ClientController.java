@@ -1,9 +1,14 @@
 package br.com.autoshop.controller;
 
 import br.com.autoshop.dto.ClientDTO;
+import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ClientService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,11 +56,15 @@ public class ClientController {
         return ResponseEntity.notFound().build();
     }
 
-/*    @GetMapping("/clients")
-    public ResponseEntity<Page<ClientDTO>> getAll(Pageable pageable) {
-        Page clients = clientService.findAll(pageable);
+    @GetMapping
+    public ResponseEntity<Page<ClientDTO>> getAll(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size,
+                                                  @RequestParam(defaultValue = "name") String sortBy) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+        Page<ClientDTO> clients = clientService.getAll(pageable);
         return ResponseEntity.ok(clients);
-    }*/
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClientDTO> put(@PathVariable Long id, @Valid @RequestBody ClientDTO dto) {
@@ -68,6 +77,7 @@ public class ClientController {
     }
 
     @PatchMapping("/{id}")
+    @ExceptionHandler(RequestInvalidException.class)
     public ResponseEntity<ClientDTO> patch(@PathVariable Long id, @RequestBody Map<String, Object> fields) {
         if (Objects.isNull(clientService.getById(id))) {
             return ResponseEntity.noContent().build();

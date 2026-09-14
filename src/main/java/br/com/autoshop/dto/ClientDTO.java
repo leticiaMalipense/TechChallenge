@@ -1,6 +1,7 @@
 package br.com.autoshop.dto;
 
 import br.com.autoshop.util.DocumentType;
+import br.com.autoshop.util.EmailValidatorUtil;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +28,7 @@ public class ClientDTO {
     private String phone;
 
     @NotBlank(message = "Email cannot be empty")
-    @Email(message = "Please provide a valid email address")
+    @Email(message = EmailValidatorUtil.VALID_EMAIL_ADDRESS)
     private String email;
 
     public ClientDTO() {
