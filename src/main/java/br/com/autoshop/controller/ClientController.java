@@ -1,9 +1,17 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.model.ClientEntity;
+import br.com.autoshop.dto.ClientDTO;
 import br.com.autoshop.service.ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.jspecify.annotations.NonNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/client")
@@ -16,22 +24,66 @@ public class ClientController {
     }
 
     @PostMapping
-    public void postClient() {
+    public ResponseEntity<Void> postClient(@Valid @RequestBody ClientDTO dto) {
+        ClientDTO client = clientService.getByDocument(dto.getDocument());
+        if (Objects.nonNull(client)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        Long id = clientService.save(dto);
+        return ResponseEntity.created(getLocation(id)).build();
     }
 
-    @GetMapping
-    public ClientEntity getClient(@RequestParam(name = "id") Long id) {
-        return clientService.getById(id).get();
+    private static @NonNull URI getLocation(Long id) {
+        return ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
     }
 
-    @PatchMapping
-    public String patchClient(@RequestParam(name = "id") Long id) {
-        return "teste";
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientDTO> getClient(@PathVariable Long id) {
+        ClientDTO client = clientService.getById(id);
+        if (Objects.nonNull(client)) {
+            return ResponseEntity.ok(client);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping
-    public String deleteClient(@RequestParam(name = "id") Long id) {
-        return "teste";
+/*    @GetMapping("/clients")
+    public ResponseEntity<Page<ClientDTO>> getAll(Pageable pageable) {
+        Page clients = clientService.findAll(pageable);
+        return ResponseEntity.ok(clients);
+    }*/
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ClientDTO> put(@PathVariable Long id, @Valid @RequestBody ClientDTO dto) {
+        if (Objects.isNull(clientService.getById(id))) {
+            return ResponseEntity.noContent().build();
+        }
+
+        clientService.put(id, dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ClientDTO> patch(@PathVariable Long id, @RequestBody Map<String, Object> fields) {
+        if (Objects.isNull(clientService.getById(id))) {
+            return ResponseEntity.noContent().build();
+        }
+
+        clientService.patch(id, fields);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ClientDTO> deleteClient(@PathVariable Long id) {
+        if (clientService.isClientExistById(id)) {
+            clientService.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.noContent().build();
     }
 
 }
