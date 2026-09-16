@@ -22,7 +22,7 @@ public class ClientDTO {
     @NotBlank(message = "Document cannot be empty")
     private String document;
 
-    @NotNull(message = "DocumentType be empty")
+    @NotNull(message = "DocumentType cannot be empty")
     private DocumentType documentType;
 
     private String phone;
