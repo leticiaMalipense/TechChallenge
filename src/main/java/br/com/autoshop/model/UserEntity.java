@@ -1,11 +1,13 @@
 package br.com.autoshop.model;
 
+import br.com.autoshop.util.HoleType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,13 +17,15 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(unique = true, length = 100, nullable = false)
     @NotNull
@@ -29,6 +33,13 @@ public class UserEntity {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(name = "role", insertable = false, updatable = false)
+    private HoleType role;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = Boolean.FALSE;
 
     @CreationTimestamp
     @Column(updatable = false)

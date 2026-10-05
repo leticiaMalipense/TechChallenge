@@ -3,6 +3,7 @@ package br.com.autoshop.controller;
 import br.com.autoshop.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ClientService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/client")
+@Tag(name = "Client")
 public class ClientController {
 
     private final ClientService clientService;

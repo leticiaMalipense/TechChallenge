@@ -18,4 +18,7 @@ public class UserDTO {
 
     @NotBlank(message = "Password cannot be empty")
     private String password;
+
+    @NotBlank(message = "Password cannot be empty")
+    private String hole;
 }

@@ -1,5 +1,6 @@
 package br.com.autoshop.service;
 
+import br.com.autoshop.dto.TokenResponseDTO;
 import br.com.autoshop.dto.UserDTO;
 import br.com.autoshop.model.UserEntity;
 import br.com.autoshop.repository.UserRepository;
@@ -22,7 +23,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    public String generateToken(String authorisation) {
+    public TokenResponseDTO generateToken(String authorisation) {
 
         String[] values = getCredentials(authorisation);
 

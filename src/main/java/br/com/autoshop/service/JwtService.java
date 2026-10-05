@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import br.com.autoshop.dto.TokenResponseDTO;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class JwtService {
         return new JwtService(encoder);
     }
 
-    public String generateToken(Authentication authentication) {
+    public TokenResponseDTO generateToken(Authentication authentication) {
         Instant now = Instant.now();
         long expiry = 3600L;
 
@@ -49,7 +50,8 @@ public class JwtService {
                 .build();
 
         var encoderParameters = JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims);
-        return this.jwtEncoder.encode(encoderParameters).getTokenValue();
+        String token = this.jwtEncoder.encode(encoderParameters).getTokenValue();
+        return new TokenResponseDTO(token, now.plusSeconds(expiry));
 
     }
 }

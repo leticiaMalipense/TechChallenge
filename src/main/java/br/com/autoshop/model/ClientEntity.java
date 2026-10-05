@@ -6,19 +6,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @Entity
 @Table(name = "client")
 @AllArgsConstructor
-public class ClientEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+@DiscriminatorValue("Client")
+
+public class ClientEntity extends UserEntity {
 
     @Column(nullable = false)
     private String document;
@@ -31,14 +31,11 @@ public class ClientEntity {
     private String phone;
 
     @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
     private String name;
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean active = Boolean.TRUE;
+    private Boolean status = Boolean.TRUE;
 
     @Builder.Default
     @Column(nullable = false)
