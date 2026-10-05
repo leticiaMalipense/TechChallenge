@@ -45,7 +45,7 @@ public class ServiceOfferingEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime updateDate = LocalDateTime.now();
 
     public ServiceOfferingEntity() {
 
