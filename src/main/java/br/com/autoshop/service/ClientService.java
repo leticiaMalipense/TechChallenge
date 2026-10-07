@@ -38,23 +38,26 @@ public class ClientService {
     }
 
     public Long save(ClientDTO dto) {
-        ClientEntity clientEntity = builderClientEntity(dto).build();
+        ClientEntity clientEntity = ClientEntity.builder()
+                .name(dto.getName())
+                .document(dto.getDocument())
+                .documentType(dto.getDocumentType())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
+                .build();
         clientRepository.save(clientEntity);
         return clientEntity.getId();
     }
 
     public void put(Long id, ClientDTO dto) {
-        ClientEntity clientEntity = builderClientEntity(dto).id(id).build();
-        clientRepository.save(clientEntity);
-    }
-
-    public ClientEntity.ClientEntityBuilder builderClientEntity(ClientDTO dto) {
-        return ClientEntity.builder()
+        ClientEntity clientEntity = ClientEntity.builder()
                 .name(dto.getName())
                 .document(dto.getDocument())
                 .documentType(dto.getDocumentType())
                 .email(dto.getEmail())
-                .phone(dto.getPhone());
+                .phone(dto.getPhone())
+                .id(id).build();
+        clientRepository.save(clientEntity);
     }
 
     public void patch(Long id, Map<String, Object> fields) throws RequestInvalidException {
@@ -111,7 +114,7 @@ public class ClientService {
     }
 
     public boolean isClientExistById(Long id) {
-        Optional<ClientEntity> client = clientRepository.getByIdAndActiveIsTrue(id);
+        Optional<ClientEntity> client = clientRepository.getByIdAndStatusIsTrue(id);
         return client.isPresent();
     }
 
@@ -119,7 +122,7 @@ public class ClientService {
         Page<ClientEntity> clientEntityPage = clientRepository.findAll(pageable);
         return clientEntityPage.map(this::convertToDto);
     }
-    
+
     private ClientDTO convertToDto(ClientEntity entity) {
         return ClientDTO.builder()
                 .name(entity.getName())

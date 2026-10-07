@@ -1,6 +1,6 @@
 package br.com.autoshop.model;
 
-import br.com.autoshop.util.DocumentType;
+import br.com.autoshop.util.RoleType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,22 +8,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+@Table(name = "users")
+@Entity
 @Getter
 @Setter
 @SuperBuilder
-@Entity
-@Table(name = "client")
 @AllArgsConstructor
-@DiscriminatorValue("Client")
-public class ClientEntity {
-
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @SequenceGenerator(
-            sequenceName = "client_id_seq",
+            sequenceName = "users_id_seq",
             initialValue = 1,
             allocationSize = 1)
     @Column(nullable = false)
@@ -34,31 +34,24 @@ public class ClientEntity {
     private String email;
 
     @Column(nullable = false)
-    private String document;
+    private String password;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DocumentType documentType;
-
-    @Column(nullable = false)
-    private String phone;
-
-    @Column(nullable = false)
-    private String name;
+    @Column(insertable = false, updatable = false)
+    private RoleType role;
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean status = Boolean.TRUE;
+    private Boolean active = Boolean.TRUE;
 
-    @Builder.Default
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
-    private UserEntity user;
+    @UpdateTimestamp
+    @Column
+    private LocalDateTime updatedDate = LocalDateTime.now();
 
-    public ClientEntity() {
+    public UserEntity() {
 
     }
 }
