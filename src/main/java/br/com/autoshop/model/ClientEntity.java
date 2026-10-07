@@ -2,6 +2,7 @@ package br.com.autoshop.model;
 
 import br.com.autoshop.util.DocumentType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +18,20 @@ import java.time.LocalDateTime;
 @Table(name = "client")
 @AllArgsConstructor
 @DiscriminatorValue("Client")
+public class ClientEntity {
 
-public class ClientEntity extends UserEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(
+            sequenceName = "client_id_seq",
+            initialValue = 1,
+            allocationSize = 1)
+    @Column(nullable = false)
+    private Long id;
+
+    @Column(unique = true, length = 100, nullable = false)
+    @NotNull
+    private String email;
 
     @Column(nullable = false)
     private String document;
@@ -40,6 +53,10 @@ public class ClientEntity extends UserEntity {
     @Builder.Default
     @Column(nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
+
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private UserEntity user;
 
     public ClientEntity() {
 

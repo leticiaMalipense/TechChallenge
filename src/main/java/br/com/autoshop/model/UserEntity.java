@@ -1,6 +1,6 @@
 package br.com.autoshop.model;
 
-import br.com.autoshop.util.HoleType;
+import br.com.autoshop.util.RoleType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -19,11 +19,13 @@ import java.time.LocalDateTime;
 @Setter
 @SuperBuilder
 @AllArgsConstructor
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(
+            sequenceName = "users_id_seq",
+            initialValue = 1,
+            allocationSize = 1)
     @Column(nullable = false)
     private Long id;
 
@@ -34,12 +36,12 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "role", insertable = false, updatable = false)
-    private HoleType role;
+    @Column(insertable = false, updatable = false)
+    private RoleType role;
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean active = Boolean.FALSE;
+    private Boolean active = Boolean.TRUE;
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -18,9 +18,8 @@ import java.util.stream.Collectors;
 public class JwtService {
 
     @Value("${spring.application.name}")
-    private String applicationName;
+    private String APPLICATION_NAME;
 
-    public static final String AUTOSHOP = "autoshop";
     public static final String SCOPE = "scope";
 
     private final JwtEncoder jwtEncoder;
@@ -42,7 +41,7 @@ public class JwtService {
                 .collect(Collectors.joining(" "));
 
         var claims = JwtClaimsSet.builder()
-                .issuer(AUTOSHOP)
+                .issuer(APPLICATION_NAME)
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiry))
                 .subject(authentication.getName())

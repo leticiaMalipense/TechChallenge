@@ -1,6 +1,7 @@
 package br.com.autoshop.dto;
 
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserDTO {
 
+    @Email
     @NotBlank(message = "Email cannot be empty")
     private String email;
 
@@ -20,5 +22,5 @@ public class UserDTO {
     private String password;
 
     @NotBlank(message = "Password cannot be empty")
-    private String hole;
+    private String role;
 }

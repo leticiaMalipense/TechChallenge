@@ -1,4 +1,4 @@
-package br.com.autoshop.security;
+package br.com.autoshop.config.security;
 
 import br.com.autoshop.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -59,7 +59,7 @@ public class ClientService {
                 .id(id).build();
         clientRepository.save(clientEntity);
     }
-    
+
     public void patch(Long id, Map<String, Object> fields) throws RequestInvalidException {
         Optional<ClientEntity> clientEntityOptional = clientRepository.findById(id);
 
@@ -114,7 +114,7 @@ public class ClientService {
     }
 
     public boolean isClientExistById(Long id) {
-        Optional<ClientEntity> client = clientRepository.getByIdAndActiveIsTrue(id);
+        Optional<ClientEntity> client = clientRepository.getByIdAndStatusIsTrue(id);
         return client.isPresent();
     }
 

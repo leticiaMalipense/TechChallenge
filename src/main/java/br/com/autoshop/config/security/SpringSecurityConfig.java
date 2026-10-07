@@ -1,4 +1,4 @@
-package br.com.autoshop.security;
+package br.com.autoshop.config.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.jspecify.annotations.NonNull;
@@ -35,7 +35,7 @@ public class SpringSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(createStrings()).permitAll()
+                        .requestMatchers(whiteList()).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
@@ -47,12 +47,14 @@ public class SpringSecurityConfig {
         return http.build();
     }
 
-    private static String @NonNull [] createStrings() {
-        return new String[]{"/v3/api-docs/**",
+    private static String @NonNull [] whiteList() {
+        return new String[]{
+                "/error",
+                "/v3/api-docs/**",
                 "/swagger-ui.html",
                 "/swagger-ui/**",
                 "/auth",
-                "/auth/*"};
+                "/signup"};
     }
 
     @Bean

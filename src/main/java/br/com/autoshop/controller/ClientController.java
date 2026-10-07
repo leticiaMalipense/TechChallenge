@@ -3,6 +3,7 @@ package br.com.autoshop.controller;
 import br.com.autoshop.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ClientService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
@@ -19,6 +20,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
+@SecurityRequirement
 @RestController
 @RequestMapping("/client")
 @Tag(name = "Client")
