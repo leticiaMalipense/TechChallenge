@@ -1,0 +1,58 @@
+package br.com.autoshop.model;
+
+import br.com.autoshop.util.RoleType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Table(name = "users")
+@Entity
+@Getter
+@Setter
+@SuperBuilder
+@AllArgsConstructor
+public class UserEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(
+            sequenceName = "users_id_seq",
+            initialValue = 1,
+            allocationSize = 1)
+    @Column(nullable = false)
+    private Long id;
+
+    @Column(unique = true, length = 100, nullable = false)
+    @NotNull
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(insertable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = Boolean.TRUE;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime creationDate = LocalDateTime.now();
+
+    @UpdateTimestamp
+    @Column
+    private LocalDateTime updatedDate = LocalDateTime.now();
+
+    public UserEntity() {
+
+    }
+}

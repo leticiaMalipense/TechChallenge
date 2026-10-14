@@ -14,10 +14,10 @@ public interface ClientRepository extends JpaRepository<ClientEntity, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE ClientEntity c SET c.active = :active WHERE c.id = :id")
+    @Query("UPDATE ClientEntity c SET c.status = :active WHERE c.id = :id")
     int updateActiveById(@Param("active") boolean active, @Param("id") Long id);
 
     Optional<ClientEntity> findByDocument(String document);
 
-    Optional<ClientEntity> getByIdAndActiveIsTrue(Long id);
+    Optional<ClientEntity> getByIdAndStatusIsTrue(Long id);
 }
