@@ -5,7 +5,6 @@ import java.util.Arrays;
 public enum RoleType {
     ADMIN,
     Client,
-    Attendent,
     Mechanic;
 
     public static boolean isValueOf(String value) {

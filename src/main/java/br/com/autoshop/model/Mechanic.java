@@ -1,6 +1,7 @@
 package br.com.autoshop.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -9,9 +10,10 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @Entity
-@Table(name = "attendent")
-@DiscriminatorValue("Attendent")
-public class Attendent {
+@Table(name = "mechanic")
+@AllArgsConstructor
+@DiscriminatorValue("Client")
+public class Mechanic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,19 +25,9 @@ public class Attendent {
     private Long id;
 
     @Column(nullable = false)
-    private String document;
-
-    @Column(nullable = false)
-    private String phone;
-
-    @Column(nullable = false)
     private String name;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
-    private UserEntity user;
-
-    public Attendent() {
-
+    public Mechanic() {
+        
     }
 }
