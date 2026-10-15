@@ -145,8 +145,8 @@ class ClientServiceTest {
 
     @Test
     void isClientExistByIdReflectsRepositoryResult() {
-        when(clientRepository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(client(1L)));
-        when(clientRepository.getByIdAndActiveIsTrue(2L)).thenReturn(Optional.empty());
+        when(clientRepository.getByIdAndStatusIsTrue(1L)).thenReturn(Optional.of(client(1L)));
+        when(clientRepository.getByIdAndStatusIsTrue(2L)).thenReturn(Optional.empty());
 
         assertTrue(clientService.isClientExistById(1L));
         assertFalse(clientService.isClientExistById(2L));

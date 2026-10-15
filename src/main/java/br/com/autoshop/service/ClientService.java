@@ -45,8 +45,8 @@ public class ClientService {
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
                 .build();
-        clientRepository.save(clientEntity);
-        return clientEntity.getId();
+        ClientEntity saved = clientRepository.save(clientEntity);
+        return saved.getId();
     }
 
     public void put(Long id, ClientDTO dto) {
