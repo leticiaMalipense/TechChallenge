@@ -2,6 +2,7 @@ package br.com.autoshop.controller;
 
 import br.com.autoshop.dto.VehicleDTO;
 import br.com.autoshop.exception.RequestInvalidException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import br.com.autoshop.service.VehicleService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
@@ -18,6 +19,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
+@SecurityRequirement
 @RestController
 @RequestMapping("/vehicle")
 public class VehicleController {
