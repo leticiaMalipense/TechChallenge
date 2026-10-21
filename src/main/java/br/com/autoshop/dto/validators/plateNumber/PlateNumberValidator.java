@@ -15,7 +15,7 @@ public class PlateNumberValidator implements ConstraintValidator<PlateNumber, St
         if (value == null || value.trim().isEmpty()) {
             return true;
         }
-        String placaFormatada = value.trim().toUpperCase();
-        return placaFormatada.matches(PLACA_REGEX);
+        String plateFormated = value.trim().toUpperCase();
+        return plateFormated.matches(PLACA_REGEX);
     }
 }

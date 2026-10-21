@@ -6,12 +6,12 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = PlateNumberValidator.class) // Aponta para a classe que valida
+@Constraint(validatedBy = PlateNumberValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PlateNumber {
 
-    String message() default "Placa de carro inválida"; // Mensagem padrão
+    String message() default "Vehicle plate number is invalid"; // Mensagem padrão
 
     Class<?>[] groups() default {};
 
