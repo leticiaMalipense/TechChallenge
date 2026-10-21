@@ -22,14 +22,17 @@ public class VehicleEntity {
   @Column(nullable = false)
   private String plateNumber;
 
-  @Column(nullable = false)
-  private String brand;
+  @Builder.Default
+  @Column(nullable = false, columnDefinition = "varchar(50) default 'Não definido'")
+  private String brand = "Não definido";
 
-  @Column(nullable = false)
-  private String model;
+  @Builder.Default
+  @Column(nullable = false, columnDefinition = "varchar(80) default 'Não definido'")
+  private String model = "Não definido";
 
-  @Column(nullable = false)
-  private Integer year;
+  @Builder.Default
+  @Column(nullable = false, columnDefinition = "integer default 0")
+  private Integer year = 0;
 
   @Builder.Default
   @Column(nullable = false)
