@@ -54,10 +54,10 @@ class ClientServiceTest {
 
     @Test
     void getByDocumentReturnsMappedClientWhenFoundAndNullWhenMissing() {
-        when(clientRepository.findByDocument("123")).thenReturn(Optional.of(client(1L)));
+        when(clientRepository.findByDocument("29839850083")).thenReturn(Optional.of(client(1L)));
         when(clientRepository.findByDocument("missing")).thenReturn(Optional.empty());
 
-        assertClientDto(clientService.getByDocument("123"));
+        assertClientDto(clientService.getByDocument("29839850083"));
         assertNull(clientService.getByDocument("missing"));
     }
 
@@ -70,7 +70,7 @@ class ClientServiceTest {
 
         assertEquals(42L, id);
         verify(clientRepository).save(argThat(saved -> saved.getName().equals("Ana Silva")
-                && saved.getDocument().equals("123")
+                && saved.getDocument().equals("29839850083")
                 && saved.getDocumentType() == DocumentType.CPF
                 && saved.getEmail().equals("ana@example.com")
                 && saved.getPhone().equals("11999999999")));
@@ -165,19 +165,19 @@ class ClientServiceTest {
     }
 
     private static ClientDTO dto() {
-        return ClientDTO.builder().name("Ana Silva").document("123").documentType(DocumentType.CPF)
+        return ClientDTO.builder().name("Ana Silva").document("29839850083").documentType(DocumentType.CPF)
                 .email("ana@example.com").phone("11999999999").build();
     }
 
     private static ClientEntity client(Long id) {
-        return ClientEntity.builder().id(id).name("Ana Silva").document("123").documentType(DocumentType.CPF)
+        return ClientEntity.builder().id(id).name("Ana Silva").document("29839850083").documentType(DocumentType.CPF)
                 .email("ana@example.com").phone("11999999999").build();
     }
 
     private static void assertClientDto(ClientDTO result) {
         assertNotNull(result);
         assertEquals("Ana Silva", result.getName());
-        assertEquals("123", result.getDocument());
+        assertEquals("29839850083", result.getDocument());
         assertEquals(DocumentType.CPF, result.getDocumentType());
         assertEquals("ana@example.com", result.getEmail());
         assertEquals("11999999999", result.getPhone());

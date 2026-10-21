@@ -119,6 +119,7 @@ public class ClientService {
         return ClientDTO.builder()
                 .name(entity.getName())
                 .document(entity.getDocument())
+                .documentType(entity.getDocumentType())
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .build();

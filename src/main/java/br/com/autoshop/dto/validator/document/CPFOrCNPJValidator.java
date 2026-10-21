@@ -15,7 +15,7 @@ public class CPFOrCNPJValidator implements ConstraintValidator<CPFOrCNPJ, String
         if (value == null || value.trim().isEmpty()) {
             return true;
         }
-        String digits = value.replaceAll("[^a-zA-Z0-9\\s]", "");
+        String digits = value.replaceAll("[^0-9]", "");
 
         CPFValidator cpfValidator = new CPFValidator();
         CNPJValidator cnpjValidator = new CNPJValidator();
