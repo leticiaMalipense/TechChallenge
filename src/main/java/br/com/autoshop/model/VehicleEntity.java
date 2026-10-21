@@ -23,6 +23,18 @@ public class VehicleEntity {
   private String plateNumber;
 
   @Builder.Default
+  @Column(nullable = false, columnDefinition = "varchar(50) default 'Não definido'")
+  private String brand = "Não definido";
+
+  @Builder.Default
+  @Column(nullable = false, columnDefinition = "varchar(80) default 'Não definido'")
+  private String model = "Não definido";
+
+  @Builder.Default
+  @Column(nullable = false, columnDefinition = "integer default 0")
+  private Integer year = 0;
+
+  @Builder.Default
   @Column(nullable = false)
   private LocalDateTime creationDate = LocalDateTime.now();
 

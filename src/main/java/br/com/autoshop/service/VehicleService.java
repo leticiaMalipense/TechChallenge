@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class VehicleService {
 
     public static final String LAST_REVIEW_IS_INVALID = "LastReview date format is invalid";
+    public static final String YEAR_IS_INVALID = "Year format is invalid";
 
     private final VehicleRepository vehicleRepository;
 
@@ -68,6 +69,22 @@ public class VehicleService {
                             vehicle.setPlateNumber(converted);
                             isDifferent.set(true);
                         }
+                        case "brand" -> {
+                            vehicle.setBrand(converted);
+                            isDifferent.set(true);
+                        }
+                        case "model" -> {
+                            vehicle.setModel(converted);
+                            isDifferent.set(true);
+                        }
+                        case "year" -> {
+                            try {
+                                vehicle.setYear(Integer.parseInt(converted));
+                                isDifferent.set(true);
+                            } catch (NumberFormatException e) {
+                                throw new RequestInvalidException(YEAR_IS_INVALID);
+                            }
+                        }
                         case "lastReview" -> {
                             try {
                                 vehicle.setLastReview(LocalDateTime.parse(converted));
@@ -102,12 +119,18 @@ public class VehicleService {
     public VehicleEntity.VehicleEntityBuilder builderVehicleEntity(VehicleDTO dto) {
         return VehicleEntity.builder()
                 .plateNumber(dto.getPlateNumber())
+                .brand(dto.getBrand())
+                .model(dto.getModel())
+                .year(dto.getYear())
                 .lastReview(dto.getLastReview());
     }
 
     private VehicleDTO convertToDto(VehicleEntity entity) {
         return VehicleDTO.builder()
                 .plateNumber(entity.getPlateNumber())
+                .brand(entity.getBrand())
+                .model(entity.getModel())
+                .year(entity.getYear())
                 .lastReview(entity.getLastReview())
                 .build();
     }
