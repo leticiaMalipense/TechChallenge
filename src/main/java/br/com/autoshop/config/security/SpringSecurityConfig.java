@@ -54,7 +54,8 @@ public class SpringSecurityConfig {
                 "/swagger-ui.html",
                 "/swagger-ui/**",
                 "/auth",
-                "/signup"};
+                "/signup",
+                "/work-orders/*/tracking"};
     }
 
     @Bean
