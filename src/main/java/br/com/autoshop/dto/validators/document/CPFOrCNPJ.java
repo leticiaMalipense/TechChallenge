@@ -1,4 +1,4 @@
-package br.com.autoshop.dto.validator.document;
+package br.com.autoshop.dto.validators.document;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

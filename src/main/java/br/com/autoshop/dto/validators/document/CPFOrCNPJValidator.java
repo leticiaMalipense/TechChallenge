@@ -1,4 +1,4 @@
-package br.com.autoshop.dto.validator.document;
+package br.com.autoshop.dto.validators.document;
 
 import br.com.caelum.stella.validation.CNPJValidator;
 import br.com.caelum.stella.validation.CPFValidator;

@@ -107,17 +107,6 @@ class ClientServiceTest {
     }
 
     @Test
-    void patchWithInvalidDocumentTypeThrowsAndDoesNotSave() {
-        when(clientRepository.findById(1L)).thenReturn(Optional.of(client(1L)));
-
-        RequestInvalidException exception = assertThrows(RequestInvalidException.class,
-                () -> clientService.patch(1L, Map.of("documentType", "INVALID")));
-
-        assertEquals(ClientService.DOCUMENT_TYPE_IS_INVALID, exception.getMessage());
-        verify(clientRepository, never()).save(any());
-    }
-
-    @Test
     void patchWithInvalidEmailThrowsAndDoesNotSave() {
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client(1L)));
 

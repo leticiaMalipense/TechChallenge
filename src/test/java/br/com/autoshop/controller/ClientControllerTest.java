@@ -41,7 +41,7 @@ class ClientControllerTest {
     @Test
     void postClientReturnsCreatedAndLocationWhenDocumentIsNew() {
         setRequest("POST", "/client");
-        when(clientService.getByDocument("29839850083")).thenReturn(null);
+        when(clientService.isClientExistByDocumentOrEmail("29839850083", "ana@example.com")).thenReturn(false);
         when(clientService.save(any(ClientDTO.class))).thenReturn(42L);
 
         var response = clientController.postClient(dto());
@@ -53,7 +53,8 @@ class ClientControllerTest {
 
     @Test
     void postClientReturnsConflictWhenDocumentAlreadyExists() {
-        when(clientService.getByDocument("29839850083")).thenReturn(dto());
+        when(clientService.isClientExistByDocumentOrEmail("29839850083", "ana@example.com"))
+                .thenReturn(true);
 
         var response = clientController.postClient(dto());
 
