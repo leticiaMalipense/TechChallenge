@@ -3,7 +3,6 @@ package br.com.autoshop.controller;
 import br.com.autoshop.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ClientService;
-import br.com.autoshop.util.DocumentType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +41,7 @@ class ClientControllerTest {
     @Test
     void postClientReturnsCreatedAndLocationWhenDocumentIsNew() {
         setRequest("POST", "/client");
-        when(clientService.getByDocument("123")).thenReturn(null);
+        when(clientService.isClientExistByDocumentOrEmail("29839850083", "ana@example.com")).thenReturn(false);
         when(clientService.save(any(ClientDTO.class))).thenReturn(42L);
 
         var response = clientController.postClient(dto());
@@ -54,7 +53,8 @@ class ClientControllerTest {
 
     @Test
     void postClientReturnsConflictWhenDocumentAlreadyExists() {
-        when(clientService.getByDocument("123")).thenReturn(dto());
+        when(clientService.isClientExistByDocumentOrEmail("29839850083", "ana@example.com"))
+                .thenReturn(true);
 
         var response = clientController.postClient(dto());
 
@@ -153,7 +153,7 @@ class ClientControllerTest {
     }
 
     private static ClientDTO dto() {
-        return ClientDTO.builder().name("Ana Silva").document("123").documentType(DocumentType.CPF)
+        return ClientDTO.builder().name("Ana Silva").document("29839850083")
                 .email("ana@example.com").phone("11999999999").build();
     }
 

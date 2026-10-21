@@ -1,5 +1,6 @@
 package br.com.autoshop.dto;
 
+import br.com.autoshop.dto.validators.plateNumber.PlateNumber;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class VehicleDTO {
 
+    @PlateNumber
     @NotBlank(message = "Plate number cannot be empty")
     private String plateNumber;
 

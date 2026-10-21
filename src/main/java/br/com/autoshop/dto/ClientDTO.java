@@ -1,10 +1,12 @@
 package br.com.autoshop.dto;
 
+import br.com.autoshop.dto.validators.document.CPFOrCNPJ;
+import br.com.autoshop.dto.validators.document.CPFOrCNPJValidator;
 import br.com.autoshop.util.DocumentType;
 import br.com.autoshop.util.EmailValidatorUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,9 +22,10 @@ public class ClientDTO {
     private String name;
 
     @NotBlank(message = "Document cannot be empty")
+    @CPFOrCNPJ
     private String document;
 
-    @NotNull(message = "DocumentType cannot be empty")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private DocumentType documentType;
 
     private String phone;
@@ -30,6 +33,19 @@ public class ClientDTO {
     @NotBlank(message = "Email cannot be empty")
     @Email(message = EmailValidatorUtil.VALID_EMAIL_ADDRESS)
     private String email;
+
+    public DocumentType getDocumentType() {
+        if (getDocument().length() == CPFOrCNPJValidator.CPF_LENGTH) {
+            return DocumentType.CPF;
+        } else if (getDocument().length() == CPFOrCNPJValidator.CNPJ_LENGTH) {
+            return DocumentType.CNPJ;
+        }
+        return null;
+    }
+
+    public String getDocument() {
+        return this.document.replaceAll("[^0-9]", "");
+    }
 
     public ClientDTO() {
 

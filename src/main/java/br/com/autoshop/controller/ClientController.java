@@ -34,8 +34,7 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<Void> postClient(@Valid @RequestBody ClientDTO dto) {
-        ClientDTO client = clientService.getByDocument(dto.getDocument());
-        if (Objects.nonNull(client)) {
+        if (clientService.isClientExistByDocumentOrEmail(dto.getDocument(), dto.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
