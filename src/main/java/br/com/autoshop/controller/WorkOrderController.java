@@ -115,7 +115,7 @@ public class WorkOrderController {
     @Operation(
             summary = "Adicionar serviços à Ordem de Serviço",
             description = "Inclui um ou mais serviços do catálogo (ServiceOffering) na Ordem de Serviço, avança automaticamente o status para EM DIAGNÓSTICO (IN_DIAGNOSIS) " +
-                    "e recalcula o orçamento total (totalBudget). Existe para permitir que o mecânico componha a lista de intervenções necessárias durante a avaliação técnica do veículo."
+                    "e recalcula o orçamento total (totalEstimate). Existe para permitir que o mecânico componha a lista de intervenções necessárias durante a avaliação técnica do veículo."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Serviços adicionados e orçamento recalculado com sucesso"),

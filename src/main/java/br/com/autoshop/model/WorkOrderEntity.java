@@ -50,7 +50,7 @@ public class WorkOrderEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private Double totalBudget = 0.0;
+    private Double totalEstimate = 0.0;
 
     @Builder.Default
     @Column(nullable = false)

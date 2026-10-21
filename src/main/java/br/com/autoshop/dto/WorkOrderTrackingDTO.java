@@ -30,7 +30,7 @@ public class WorkOrderTrackingDTO {
     @Builder.Default
     private List<String> serviceNames = new ArrayList<>();
 
-    private Double totalBudget;
+    private Double totalEstimate;
 
     private LocalDateTime creationDate;
 

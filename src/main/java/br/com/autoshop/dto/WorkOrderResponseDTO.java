@@ -38,7 +38,7 @@ public class WorkOrderResponseDTO {
 
     // TODO: Incluir lista de peças e insumos quando a entidade for criada
 
-    private Double totalBudget;
+    private Double totalEstimate;
 
     private LocalDateTime creationDate;
 

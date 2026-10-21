@@ -119,12 +119,12 @@ class WorkOrderServiceTest {
 
         assertEquals(generatedId, response.getId());
         assertEquals(WorkOrderStatus.RECEIVED, response.getStatus());
-        assertEquals(0.0, response.getTotalBudget());
+        assertEquals(0.0, response.getTotalEstimate());
         verify(vehicleRepository, never()).save(any());
     }
 
     @Test
-    void createWithNewVehicleRegistersVehicleAndCalculatesInitialBudget() {
+    void createWithNewVehicleRegistersVehicleAndCalculatesInitialEstimate() {
         UUID generatedId = UUID.randomUUID();
         WorkOrderRequestDTO request = WorkOrderRequestDTO.builder()
                 .clientDocument("123.456.789-00")
@@ -149,7 +149,7 @@ class WorkOrderServiceTest {
         WorkOrderResponseDTO response = workOrderService.create(request);
 
         assertEquals(WorkOrderStatus.IN_DIAGNOSIS, response.getStatus());
-        assertEquals(300.0, response.getTotalBudget());
+        assertEquals(300.0, response.getTotalEstimate());
         assertEquals("NEW9Z99", response.getVehiclePlateNumber());
         assertEquals("Honda", response.getVehicleBrand());
         verify(vehicleRepository).save(any(VehicleEntity.class));
@@ -179,17 +179,17 @@ class WorkOrderServiceTest {
                 .vehicle(defaultVehicle)
                 .status(WorkOrderStatus.RECEIVED)
                 .services(new ArrayList<>())
-                .totalBudget(0.0)
+                .totalEstimate(0.0)
                 .build();
 
         when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
         when(serviceOfferingRepository.getByIdAndActiveIsTrue(100L)).thenReturn(Optional.of(oilChangeService));
         when(workOrderRepository.save(any(WorkOrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // 1. Add service -> transitions RECEIVED to IN_DIAGNOSIS and updates budget
+        // 1. Add service -> transitions RECEIVED to IN_DIAGNOSIS and updates estimate
         WorkOrderResponseDTO afterAddService = workOrderService.addServices(id, List.of(100L));
         assertEquals(WorkOrderStatus.IN_DIAGNOSIS, afterAddService.getStatus());
-        assertEquals(180.0, afterAddService.getTotalBudget());
+        assertEquals(180.0, afterAddService.getTotalEstimate());
 
         // 2. Send for approval -> transitions IN_DIAGNOSIS to AWAITING_APPROVAL
         WorkOrderResponseDTO afterSendApproval = workOrderService.sendForApproval(id);
@@ -219,7 +219,7 @@ class WorkOrderServiceTest {
                 .vehicle(defaultVehicle)
                 .status(WorkOrderStatus.IN_EXECUTION)
                 .services(List.of(oilChangeService))
-                .totalBudget(180.0)
+                .totalEstimate(180.0)
                 .build();
 
         when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
@@ -240,7 +240,7 @@ class WorkOrderServiceTest {
                 .vehicle(defaultVehicle)
                 .status(WorkOrderStatus.IN_EXECUTION)
                 .services(List.of(oilChangeService))
-                .totalBudget(180.0)
+                .totalEstimate(180.0)
                 .build();
 
         when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
@@ -259,7 +259,7 @@ class WorkOrderServiceTest {
                 .vehicle(defaultVehicle)
                 .status(WorkOrderStatus.AWAITING_APPROVAL)
                 .services(List.of(oilChangeService))
-                .totalBudget(180.0)
+                .totalEstimate(180.0)
                 .build();
 
         when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));

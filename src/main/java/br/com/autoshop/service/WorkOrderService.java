@@ -81,7 +81,7 @@ public class WorkOrderService {
                 .status(initialStatus)
                 .build();
 
-        workOrder.setTotalBudget(calculateBudget(workOrder));
+        workOrder.setTotalEstimate(calculateEstimate(workOrder));
 
         WorkOrderEntity saved = workOrderRepository.save(workOrder);
         return convertToResponseDto(saved);
@@ -123,7 +123,7 @@ public class WorkOrderService {
         // TODO: Permitir também a adição de peças e insumos necessários quando a entidade for implementada
 
         workOrder.setStatus(WorkOrderStatus.IN_DIAGNOSIS);
-        workOrder.setTotalBudget(calculateBudget(workOrder));
+        workOrder.setTotalEstimate(calculateEstimate(workOrder));
         workOrder.setUpdateDate(LocalDateTime.now());
 
         return convertToResponseDto(workOrderRepository.save(workOrder));
@@ -146,12 +146,12 @@ public class WorkOrderService {
             throw new RequestInvalidException(SERVICES_REQUIRED_FOR_APPROVAL);
         }
 
-        workOrder.setTotalBudget(calculateBudget(workOrder));
+        workOrder.setTotalEstimate(calculateEstimate(workOrder));
         workOrder.setStatus(WorkOrderStatus.AWAITING_APPROVAL);
         workOrder.setUpdateDate(LocalDateTime.now());
 
         WorkOrderEntity saved = workOrderRepository.save(workOrder);
-        sendBudgetToClient(saved);
+        sendEstimateToClient(saved);
 
         return convertToResponseDto(saved);
     }
@@ -215,7 +215,7 @@ public class WorkOrderService {
         return convertToTrackingDto(workOrder);
     }
 
-    public Double calculateBudget(WorkOrderEntity workOrder) {
+    public Double calculateEstimate(WorkOrderEntity workOrder) {
         double servicesTotal = 0.0;
         if (Objects.nonNull(workOrder.getServices())) {
             servicesTotal = workOrder.getServices().stream()
@@ -230,7 +230,7 @@ public class WorkOrderService {
         return servicesTotal + partsAndSuppliesTotal;
     }
 
-    protected void sendBudgetToClient(WorkOrderEntity workOrder) {
+    protected void sendEstimateToClient(WorkOrderEntity workOrder) {
         // TODO: Implementar envio automático do orçamento (e-mail/notificação) ao cliente para aprovação
     }
 
@@ -306,7 +306,7 @@ public class WorkOrderService {
                 .vehicleYear(entity.getVehicle().getYear())
                 .status(entity.getStatus())
                 .services(serviceDtos)
-                .totalBudget(entity.getTotalBudget())
+                .totalEstimate(entity.getTotalEstimate())
                 .creationDate(entity.getCreationDate())
                 .updateDate(entity.getUpdateDate())
                 .build();
@@ -326,7 +326,7 @@ public class WorkOrderService {
                 .vehicleModel(entity.getVehicle().getModel())
                 .status(entity.getStatus())
                 .serviceNames(serviceNames)
-                .totalBudget(entity.getTotalBudget())
+                .totalEstimate(entity.getTotalEstimate())
                 .creationDate(entity.getCreationDate())
                 .updateDate(entity.getUpdateDate())
                 .build();
