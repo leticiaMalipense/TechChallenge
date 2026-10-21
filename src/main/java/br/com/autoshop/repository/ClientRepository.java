@@ -20,4 +20,6 @@ public interface ClientRepository extends JpaRepository<ClientEntity, Long> {
     Optional<ClientEntity> findByDocument(String document);
 
     Optional<ClientEntity> getByIdAndStatusIsTrue(Long id);
+
+    Optional<ClientEntity> getByDocumentOrEmail(String document, String email);
 }

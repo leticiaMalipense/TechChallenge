@@ -4,7 +4,6 @@ import br.com.autoshop.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.model.ClientEntity;
 import br.com.autoshop.repository.ClientRepository;
-import br.com.autoshop.util.DocumentType;
 import br.com.autoshop.util.EmailValidatorUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -76,13 +75,6 @@ public class ClientService {
                             client.setName(converted);
                             isDifferent.set(true);
                         }
-                        case "documentType" -> {
-                            if (!DocumentType.isValueOf(converted)) {
-                                throw new RequestInvalidException(DOCUMENT_TYPE_IS_INVALID);
-                            }
-                            client.setDocumentType(DocumentType.valueOf(converted));
-                            isDifferent.set(true);
-                        }
                         case "document" -> {
                             client.setDocument(converted);
                             isDifferent.set(true);
@@ -127,9 +119,12 @@ public class ClientService {
         return ClientDTO.builder()
                 .name(entity.getName())
                 .document(entity.getDocument())
-                .documentType(entity.getDocumentType())
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .build();
+    }
+
+    public boolean isClientExistByDocumentOrEmail(String document, String email) {
+        return clientRepository.getByDocumentOrEmail(document, email).isPresent();
     }
 }
