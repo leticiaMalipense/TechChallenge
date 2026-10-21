@@ -3,6 +3,7 @@ package br.com.autoshop.controller;
 import br.com.autoshop.dto.WorkOrderRequestDTO;
 import br.com.autoshop.dto.WorkOrderResponseDTO;
 import br.com.autoshop.dto.WorkOrderTrackingDTO;
+import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.WorkOrderService;
 import br.com.autoshop.util.WorkOrderStatus;
 import org.junit.jupiter.api.AfterEach;
@@ -91,5 +92,16 @@ class WorkOrderControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertSame(trackingDto, response.getBody());
         verify(workOrderService).trackWorkOrder(id, "123");
+    }
+
+    @Test
+    void handleRequestInvalidExceptionReturnsBadRequestWithErrorMessage() {
+        RequestInvalidException ex = new RequestInvalidException(WorkOrderService.SERVICES_REQUIRED_FOR_APPROVAL);
+
+        var response = workOrderController.handleRequestInvalidException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(WorkOrderService.SERVICES_REQUIRED_FOR_APPROVAL, response.getBody().get("error"));
     }
 }

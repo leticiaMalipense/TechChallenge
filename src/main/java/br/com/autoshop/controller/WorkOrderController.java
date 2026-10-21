@@ -3,6 +3,7 @@ package br.com.autoshop.controller;
 import br.com.autoshop.dto.WorkOrderRequestDTO;
 import br.com.autoshop.dto.WorkOrderResponseDTO;
 import br.com.autoshop.dto.WorkOrderTrackingDTO;
+import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.WorkOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -213,5 +215,10 @@ public class WorkOrderController {
             @RequestParam String documentPrefix
     ) {
         return ResponseEntity.ok(workOrderService.trackWorkOrder(id, documentPrefix));
+    }
+
+    @ExceptionHandler(RequestInvalidException.class)
+    public ResponseEntity<Map<String, String>> handleRequestInvalidException(RequestInvalidException ex) {
+        return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
     }
 }
