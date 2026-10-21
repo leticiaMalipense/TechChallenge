@@ -11,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public abstract class VehicleHelper {
 
     public static final String DEFAULT_PLATE = "ABC1D23";
+    public static final String DEFAULT_BRAND = "Toyota";
+    public static final String DEFAULT_MODEL = "Corolla";
+    public static final Integer DEFAULT_YEAR = 2022;
     public static final LocalDateTime DEFAULT_LAST_REVIEW = LocalDateTime.of(2025, 1, 15, 10, 30);
     public static final LocalDateTime DEFAULT_CREATION_DATE = LocalDateTime.of(2024, 1, 10, 8, 0);
 
@@ -25,6 +28,9 @@ public abstract class VehicleHelper {
     public VehicleDTO createVehicleDTO(String plateNumber, LocalDateTime lastReview) {
         return VehicleDTO.builder()
                 .plateNumber(plateNumber)
+                .brand(DEFAULT_BRAND)
+                .model(DEFAULT_MODEL)
+                .year(DEFAULT_YEAR)
                 .lastReview(lastReview)
                 .build();
     }
@@ -45,6 +51,9 @@ public abstract class VehicleHelper {
         return VehicleEntity.builder()
                 .id(id)
                 .plateNumber(plateNumber)
+                .brand(DEFAULT_BRAND)
+                .model(DEFAULT_MODEL)
+                .year(DEFAULT_YEAR)
                 .creationDate(creationDate)
                 .lastReview(lastReview)
                 .build();
@@ -53,6 +62,9 @@ public abstract class VehicleHelper {
     public void assertVehicleDto(VehicleDTO result) {
         assertNotNull(result);
         assertEquals(DEFAULT_PLATE, result.getPlateNumber());
+        assertEquals(DEFAULT_BRAND, result.getBrand());
+        assertEquals(DEFAULT_MODEL, result.getModel());
+        assertEquals(DEFAULT_YEAR, result.getYear());
         assertEquals(DEFAULT_LAST_REVIEW, result.getLastReview());
     }
 }

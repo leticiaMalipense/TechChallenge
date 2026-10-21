@@ -22,6 +22,15 @@ public class VehicleEntity {
   @Column(nullable = false)
   private String plateNumber;
 
+  @Column(nullable = false)
+  private String brand;
+
+  @Column(nullable = false)
+  private String model;
+
+  @Column(nullable = false)
+  private Integer year;
+
   @Builder.Default
   @Column(nullable = false)
   private LocalDateTime creationDate = LocalDateTime.now();
