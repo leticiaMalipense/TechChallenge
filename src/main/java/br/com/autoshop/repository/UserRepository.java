@@ -1,6 +1,6 @@
 package br.com.autoshop.repository;
 
-import br.com.autoshop.model.UserEntity;
+import br.com.autoshop.repository.model.UserEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

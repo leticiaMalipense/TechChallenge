@@ -1,9 +1,9 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.ClientDTO;
+import br.com.autoshop.controller.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
-import br.com.autoshop.model.ClientEntity;
 import br.com.autoshop.repository.ClientRepository;
+import br.com.autoshop.repository.model.ClientEntity;
 import br.com.autoshop.util.DocumentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

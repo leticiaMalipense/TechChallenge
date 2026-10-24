@@ -1,8 +1,8 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.TokenResponseDTO;
-import br.com.autoshop.dto.UserDTO;
-import br.com.autoshop.model.UserEntity;
+import br.com.autoshop.controller.dto.TokenResponseDTO;
+import br.com.autoshop.controller.dto.UserDTO;
+import br.com.autoshop.repository.model.UserEntity;
 import br.com.autoshop.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

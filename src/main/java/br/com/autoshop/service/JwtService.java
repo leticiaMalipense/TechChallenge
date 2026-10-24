@@ -1,5 +1,6 @@
 package br.com.autoshop.service;
 
+import br.com.autoshop.controller.dto.TokenResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,7 +10,6 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
-import br.com.autoshop.dto.TokenResponseDTO;
 
 import java.time.Instant;
 import java.util.stream.Collectors;

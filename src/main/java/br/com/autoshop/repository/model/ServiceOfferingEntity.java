@@ -1,4 +1,4 @@
-package br.com.autoshop.model;
+package br.com.autoshop.repository.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

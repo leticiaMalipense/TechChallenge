@@ -1,6 +1,6 @@
-package br.com.autoshop.model;
+package br.com.autoshop.repository.model;
 
-import br.com.autoshop.util.RoleType;
+import br.com.autoshop.util.DocumentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,22 +8,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Table(name = "users")
-@Entity
 @Getter
 @Setter
 @SuperBuilder
+@Entity
+@Table(name = "client")
 @AllArgsConstructor
-public class UserEntity {
+@DiscriminatorValue("Client")
+public class ClientEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @SequenceGenerator(
-            sequenceName = "users_id_seq",
+            sequenceName = "client_id_seq",
             initialValue = 1,
             allocationSize = 1)
     @Column(nullable = false)
@@ -34,25 +34,31 @@ public class UserEntity {
     private String email;
 
     @Column(nullable = false)
-    private String password;
+    private String document;
 
-    @Column(insertable = false, updatable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RoleType role;
+    private DocumentType documentType;
+
+    @Column(nullable = false)
+    private String phone;
+
+    @Column(nullable = false)
+    private String name;
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean active = Boolean.TRUE;
+    private Boolean status = Boolean.TRUE;
 
-    @CreationTimestamp
-    @Column(updatable = false)
+    @Builder.Default
+    @Column(nullable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @UpdateTimestamp
-    @Column
-    private LocalDateTime updatedDate = LocalDateTime.now();
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private UserEntity user;
 
-    public UserEntity() {
+    public ClientEntity() {
 
     }
 }

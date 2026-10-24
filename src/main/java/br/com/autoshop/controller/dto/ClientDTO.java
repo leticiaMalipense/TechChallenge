@@ -1,7 +1,7 @@
-package br.com.autoshop.dto;
+package br.com.autoshop.controller.dto;
 
-import br.com.autoshop.dto.validators.document.CPFOrCNPJ;
-import br.com.autoshop.dto.validators.document.CPFOrCNPJValidator;
+import br.com.autoshop.controller.dto.validators.document.CPFOrCNPJ;
+import br.com.autoshop.controller.dto.validators.document.CPFOrCNPJValidator;
 import br.com.autoshop.util.DocumentType;
 import br.com.autoshop.util.EmailValidatorUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;

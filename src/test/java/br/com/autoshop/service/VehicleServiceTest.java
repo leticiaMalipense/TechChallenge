@@ -1,10 +1,10 @@
 package br.com.autoshop.service;
 
 import br.com.autoshop.Helper.VehicleHelper;
-import br.com.autoshop.dto.VehicleDTO;
+import br.com.autoshop.controller.dto.VehicleDTO;
 import br.com.autoshop.exception.RequestInvalidException;
-import br.com.autoshop.model.VehicleEntity;
 import br.com.autoshop.repository.VehicleRepository;
+import br.com.autoshop.repository.model.VehicleEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +64,7 @@ class VehicleServiceTest extends VehicleHelper {
         assertEquals(DEFAULT_PLATE, result);
         verify(vehicleRepository).save(argThat(saved ->
                 DEFAULT_PLATE.equals(saved.getPlateNumber()) &&
-                DEFAULT_LAST_REVIEW.equals(saved.getLastReview())
+                        DEFAULT_LAST_REVIEW.equals(saved.getLastReview())
         ));
     }
 
@@ -80,9 +80,9 @@ class VehicleServiceTest extends VehicleHelper {
 
         verify(vehicleRepository).save(argThat(saved ->
                 Long.valueOf(10L).equals(saved.getId()) &&
-                existing.getCreationDate().equals(saved.getCreationDate()) &&
-                DEFAULT_PLATE.equals(saved.getPlateNumber()) &&
-                newReview.equals(saved.getLastReview())
+                        existing.getCreationDate().equals(saved.getCreationDate()) &&
+                        DEFAULT_PLATE.equals(saved.getPlateNumber()) &&
+                        newReview.equals(saved.getLastReview())
         ));
     }
 
@@ -96,8 +96,8 @@ class VehicleServiceTest extends VehicleHelper {
 
         verify(vehicleRepository).save(argThat(saved ->
                 saved.getId() == null &&
-                DEFAULT_PLATE.equals(saved.getPlateNumber()) &&
-                DEFAULT_LAST_REVIEW.equals(saved.getLastReview())
+                        DEFAULT_PLATE.equals(saved.getPlateNumber()) &&
+                        DEFAULT_LAST_REVIEW.equals(saved.getLastReview())
         ));
     }
 

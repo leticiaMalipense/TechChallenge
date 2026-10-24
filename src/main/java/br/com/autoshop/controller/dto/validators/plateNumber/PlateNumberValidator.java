@@ -1,4 +1,4 @@
-package br.com.autoshop.dto.validators.plateNumber;
+package br.com.autoshop.controller.dto.validators.plateNumber;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

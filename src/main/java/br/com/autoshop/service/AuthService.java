@@ -1,9 +1,9 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.TokenResponseDTO;
-import br.com.autoshop.dto.UserDTO;
-import br.com.autoshop.model.UserEntity;
+import br.com.autoshop.controller.dto.TokenResponseDTO;
+import br.com.autoshop.controller.dto.UserDTO;
 import br.com.autoshop.repository.UserRepository;
+import br.com.autoshop.repository.model.UserEntity;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NonNull;

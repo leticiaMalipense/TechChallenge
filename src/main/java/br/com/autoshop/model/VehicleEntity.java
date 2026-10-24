@@ -15,31 +15,28 @@ import java.time.LocalDateTime;
 @Table(name = "vehicle")
 @AllArgsConstructor
 public class VehicleEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
-  @Column(nullable = false)
-  private String plateNumber;
+    @Column(nullable = false)
+    private String plateNumber;
 
-  @Builder.Default
-  @Column(nullable = false, columnDefinition = "varchar(50) default 'Não definido'")
-  private String brand = "Não definido";
+    @Column(nullable = false)
+    private String brand;
 
-  @Builder.Default
-  @Column(nullable = false, columnDefinition = "varchar(80) default 'Não definido'")
-  private String model = "Não definido";
+    @Column(nullable = false)
+    private String model;
 
-  @Builder.Default
-  @Column(nullable = false, columnDefinition = "integer default 0")
-  private Integer year = 0;
+    @Column(nullable = false)
+    private Integer year;
 
-  @Builder.Default
-  @Column(nullable = false)
-  private LocalDateTime creationDate = LocalDateTime.now();
+    @Column(nullable = false)
+    private LocalDateTime creationDate = LocalDateTime.now();
 
-  @Column(nullable = true)
-  private LocalDateTime lastReview;
+    @Column
+    private LocalDateTime lastReview;
 
-  public VehicleEntity() {}
+    public VehicleEntity() {
+    }
 }

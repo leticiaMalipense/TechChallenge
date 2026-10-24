@@ -1,9 +1,9 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.VehicleDTO;
+import br.com.autoshop.controller.dto.VehicleDTO;
 import br.com.autoshop.exception.RequestInvalidException;
-import br.com.autoshop.model.VehicleEntity;
 import br.com.autoshop.repository.VehicleRepository;
+import br.com.autoshop.repository.model.VehicleEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

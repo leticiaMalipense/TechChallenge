@@ -1,4 +1,4 @@
-package br.com.autoshop.dto;
+package br.com.autoshop.controller.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,8 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.WorkOrderRequestDTO;
-import br.com.autoshop.dto.WorkOrderResponseDTO;
-import br.com.autoshop.dto.WorkOrderTrackingDTO;
+import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
+import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
+import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.WorkOrderService;
 import br.com.autoshop.util.WorkOrderStatus;

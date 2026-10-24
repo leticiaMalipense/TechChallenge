@@ -1,6 +1,6 @@
 package br.com.autoshop.repository;
 
-import br.com.autoshop.model.WorkOrderEntity;
+import br.com.autoshop.repository.model.WorkOrderEntity;
 import br.com.autoshop.util.WorkOrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 

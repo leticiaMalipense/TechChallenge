@@ -1,6 +1,6 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.VehicleDTO;
+import br.com.autoshop.controller.dto.VehicleDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.VehicleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -92,8 +92,8 @@ public class VehicleController {
     })
     @GetMapping
     public ResponseEntity<Page<VehicleDTO>> getAll(@RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "10") int size,
-                                                  @RequestParam(defaultValue = "plateNumber") String sortBy) {
+                                                   @RequestParam(defaultValue = "10") int size,
+                                                   @RequestParam(defaultValue = "plateNumber") String sortBy) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
         Page<VehicleDTO> vehicles = vehicleService.getAll(pageable);

@@ -1,6 +1,6 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.ServiceOfferingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ServiceOfferingService;
 import org.junit.jupiter.api.AfterEach;

@@ -1,7 +1,7 @@
 package br.com.autoshop.controller;
 
 import br.com.autoshop.Helper.VehicleHelper;
-import br.com.autoshop.dto.VehicleDTO;
+import br.com.autoshop.controller.dto.VehicleDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.VehicleService;
 import org.junit.jupiter.api.AfterEach;
