@@ -1,6 +1,6 @@
-package br.com.autoshop.dto;
+package br.com.autoshop.controller.dto;
 
-import br.com.autoshop.dto.validators.plateNumber.PlateNumber;
+import br.com.autoshop.controller.dto.validators.plateNumber.PlateNumber;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

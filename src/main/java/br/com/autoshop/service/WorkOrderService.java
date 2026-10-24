@@ -1,31 +1,25 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.ServiceOfferingDTO;
-import br.com.autoshop.dto.WorkOrderRequestDTO;
-import br.com.autoshop.dto.WorkOrderResponseDTO;
-import br.com.autoshop.dto.WorkOrderTrackingDTO;
+import br.com.autoshop.controller.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
+import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
+import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
-import br.com.autoshop.model.ClientEntity;
-import br.com.autoshop.model.ServiceOfferingEntity;
-import br.com.autoshop.model.VehicleEntity;
-import br.com.autoshop.model.WorkOrderEntity;
 import br.com.autoshop.repository.ClientRepository;
 import br.com.autoshop.repository.ServiceOfferingRepository;
 import br.com.autoshop.repository.VehicleRepository;
 import br.com.autoshop.repository.WorkOrderRepository;
+import br.com.autoshop.repository.model.ClientEntity;
+import br.com.autoshop.repository.model.ServiceOfferingEntity;
+import br.com.autoshop.repository.model.VehicleEntity;
+import br.com.autoshop.repository.model.WorkOrderEntity;
 import br.com.autoshop.util.WorkOrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class WorkOrderService {

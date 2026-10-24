@@ -1,4 +1,4 @@
-package br.com.autoshop.dto;
+package br.com.autoshop.controller.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +31,7 @@ public class ServiceOfferingDTO {
     @NotBlank(message = "Category cannot be empty")
     private String category;
 
-    public ServiceOfferingDTO(){
+    public ServiceOfferingDTO() {
 
     }
 

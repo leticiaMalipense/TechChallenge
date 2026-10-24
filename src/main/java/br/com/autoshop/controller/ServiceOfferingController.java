@@ -1,6 +1,6 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.ServiceOfferingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ServiceOfferingService;
 import jakarta.validation.Valid;
@@ -58,8 +58,8 @@ public class ServiceOfferingController {
 
     @GetMapping
     public ResponseEntity<Page<ServiceOfferingDTO>> getAll(@RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "10") int size,
-                                                  @RequestParam(defaultValue = "name") String sortBy) {
+                                                           @RequestParam(defaultValue = "10") int size,
+                                                           @RequestParam(defaultValue = "name") String sortBy) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
         Page<ServiceOfferingDTO> serviceOfferings = serviceOfferingService.getAll(pageable);

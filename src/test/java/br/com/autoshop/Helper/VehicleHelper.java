@@ -1,7 +1,7 @@
 package br.com.autoshop.Helper;
 
-import br.com.autoshop.dto.VehicleDTO;
-import br.com.autoshop.model.VehicleEntity;
+import br.com.autoshop.controller.dto.VehicleDTO;
+import br.com.autoshop.repository.model.VehicleEntity;
 
 import java.time.LocalDateTime;
 

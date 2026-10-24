@@ -1,4 +1,4 @@
-package br.com.autoshop.dto;
+package br.com.autoshop.controller.dto;
 
 import br.com.autoshop.util.WorkOrderStatus;
 import lombok.AllArgsConstructor;
@@ -15,9 +15,13 @@ import java.util.UUID;
 @Setter
 @Builder
 @AllArgsConstructor
-public class WorkOrderTrackingDTO {
+public class WorkOrderResponseDTO {
 
     private UUID id;
+
+    private String clientName;
+
+    private String clientDocument;
 
     private String vehiclePlateNumber;
 
@@ -25,10 +29,14 @@ public class WorkOrderTrackingDTO {
 
     private String vehicleModel;
 
+    private Integer vehicleYear;
+
     private WorkOrderStatus status;
 
     @Builder.Default
-    private List<String> serviceNames = new ArrayList<>();
+    private List<ServiceOfferingDTO> services = new ArrayList<>();
+
+    // TODO: Incluir lista de peças e insumos quando a entidade for criada
 
     private Double totalEstimate;
 
@@ -36,6 +44,6 @@ public class WorkOrderTrackingDTO {
 
     private LocalDateTime updateDate;
 
-    public WorkOrderTrackingDTO() {
+    public WorkOrderResponseDTO() {
     }
 }

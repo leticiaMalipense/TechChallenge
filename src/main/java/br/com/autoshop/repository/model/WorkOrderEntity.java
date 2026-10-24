@@ -1,4 +1,4 @@
-package br.com.autoshop.model;
+package br.com.autoshop.repository.model;
 
 import br.com.autoshop.util.WorkOrderStatus;
 import jakarta.persistence.*;

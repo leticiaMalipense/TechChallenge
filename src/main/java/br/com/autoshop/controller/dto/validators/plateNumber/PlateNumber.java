@@ -1,4 +1,4 @@
-package br.com.autoshop.dto.validators.document;
+package br.com.autoshop.controller.dto.validators.plateNumber;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -6,12 +6,12 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = CPFOrCNPJValidator.class)
+@Constraint(validatedBy = PlateNumberValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CPFOrCNPJ {
+public @interface PlateNumber {
 
-    String message() default "Document invalid, it should be a CPF or CNPJ.";
+    String message() default "Vehicle plate number is invalid"; // Mensagem padrão
 
     Class<?>[] groups() default {};
 

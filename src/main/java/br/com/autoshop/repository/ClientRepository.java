@@ -1,6 +1,6 @@
 package br.com.autoshop.repository;
 
-import br.com.autoshop.model.ClientEntity;
+import br.com.autoshop.repository.model.ClientEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

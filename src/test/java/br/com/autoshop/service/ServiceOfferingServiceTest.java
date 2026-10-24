@@ -1,9 +1,9 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.ServiceOfferingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
-import br.com.autoshop.model.ServiceOfferingEntity;
 import br.com.autoshop.repository.ServiceOfferingRepository;
+import br.com.autoshop.repository.model.ServiceOfferingEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package br.com.autoshop.config.security;
 
-import br.com.autoshop.model.UserEntity;
+import br.com.autoshop.repository.model.UserEntity;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
