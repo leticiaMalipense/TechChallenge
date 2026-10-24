@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 
 @SpringBootApplication
-@EntityScan(basePackages = "br.com.autoshop.model")
+@EntityScan(basePackages = "br.com.autoshop.repository.model")
 public class AutoshopApplication {
 
     public static void main(String[] args) {
