@@ -31,6 +31,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    implementation("org.apache.pdfbox:pdfbox:3.0.4")
 
     implementation("br.com.caelum.stella:caelum-stella-core:2.2.2")
 
