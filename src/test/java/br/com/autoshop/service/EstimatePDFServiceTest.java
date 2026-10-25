@@ -21,9 +21,6 @@ class EstimatePDFServiceTest {
 
     @Test
     void generatePdfReturnsPdfForPopulatedWorkOrder() throws IOException, JRException {
-        Path outputPath = Path.of("src", "main", "resources", "reports", "estimate.pdf");
-        byte[] previousPdf = Files.exists(outputPath) ? Files.readAllBytes(outputPath) : null;
-
         WorkOrderResponseDTO workOrder = WorkOrderResponseDTO.builder()
                 .id(UUID.randomUUID())
                 .clientName("Jane Smith")
@@ -43,20 +40,13 @@ class EstimatePDFServiceTest {
                         .build()))
                 .build();
 
-        try {
-            byte[] pdf = service.generatePdf(workOrder);
+        byte[] pdf = service.generatePdf(workOrder);
 
-            assertNotNull(pdf);
-            assertTrue(pdf.length > 0);
-            assertTrue(new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII)
-                    .startsWith("%PDF-"));
-        } finally {
-            if (previousPdf == null) {
-                Files.deleteIfExists(outputPath);
-            } else {
-                Files.write(outputPath, previousPdf);
-            }
-        }
+        assertNotNull(pdf);
+        assertTrue(pdf.length > 0);
+        assertTrue(new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII)
+                .startsWith("%PDF-"));
+        assertTrue(Files.exists(Path.of("src", "main", "resources", "reports", "estimate.pdf")));
     }
 
     @Test
