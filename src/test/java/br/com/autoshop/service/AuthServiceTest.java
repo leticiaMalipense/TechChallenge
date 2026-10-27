@@ -1,9 +1,9 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.TokenResponseDTO;
-import br.com.autoshop.dto.UserDTO;
-import br.com.autoshop.model.UserEntity;
+import br.com.autoshop.controller.dto.TokenResponseDTO;
+import br.com.autoshop.controller.dto.UserDTO;
 import br.com.autoshop.repository.UserRepository;
+import br.com.autoshop.repository.model.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +27,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @Mock private AuthenticationManager authenticationManager;
-    @Mock private JwtService jwtService;
-    @Mock private UserRepository userRepository;
+    @Mock
+    private AuthenticationManager authenticationManager;
+    @Mock
+    private JwtService jwtService;
+    @Mock
+    private UserRepository userRepository;
 
     private AuthService authService;
 

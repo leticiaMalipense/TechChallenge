@@ -1,8 +1,8 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.TokenResponseDTO;
-import br.com.autoshop.dto.UserDTO;
-import br.com.autoshop.model.UserEntity;
+import br.com.autoshop.controller.dto.TokenResponseDTO;
+import br.com.autoshop.controller.dto.UserDTO;
+import br.com.autoshop.repository.model.UserEntity;
 import br.com.autoshop.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +19,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 
-    @Mock private AuthService authService;
-    @InjectMocks private AuthController authController;
+    @Mock
+    private AuthService authService;
+    @InjectMocks
+    private AuthController authController;
 
     @Test
     void signupCreatesUserWhenEmailIsNotRegistered() {

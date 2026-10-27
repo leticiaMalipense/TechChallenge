@@ -9,10 +9,10 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
-  pgadmin: 
+  pgadmin:
     image: dpage/pgadmin4
     restart: always
-    environment: 
+    environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
@@ -36,6 +36,7 @@ services:
   db-sonar:
     image: postgres:15
     environment:
+      POSTGRES_DB: sonar
       POSTGRES_USER: sonar
       POSTGRES_PASSWORD: sonar
     volumes:
