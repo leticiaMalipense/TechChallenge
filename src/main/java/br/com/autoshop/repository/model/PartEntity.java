@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @Entity
-@Table(name = "part")
+@Table(name = "part", uniqueConstraints = @UniqueConstraint(name = "uk_part_code", columnNames = "code"))
 @AllArgsConstructor
 public class PartEntity {
 
@@ -35,7 +36,7 @@ public class PartEntity {
 
     private String description;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String code;
 
     private String category;

@@ -1,5 +1,6 @@
 package br.com.autoshop.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import br.com.autoshop.util.PartType;
 import br.com.autoshop.util.PartUnit;
@@ -23,9 +24,11 @@ public class PartDTO {
     public static final String INVALID_PRICE_MESSAGE = "must have at most 17 integer digits and 2 fraction digits";
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "Identificador gerado pelo sistema", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "Saldo atual na unidade cadastrada; alterado apenas pelas operações de estoque", accessMode = Schema.AccessMode.READ_ONLY)
     private BigDecimal stockQuantity;
 
     @NotBlank(message = "Name cannot be empty")

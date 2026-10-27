@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import br.com.autoshop.controller.dto.PartDTO;
 import br.com.autoshop.controller.dto.StockMovementDTO;
 import br.com.autoshop.exception.RequestInvalidException;
+import br.com.autoshop.exception.PartNotFoundException;
 import br.com.autoshop.service.PartService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -101,7 +102,6 @@ class PartControllerTest {
 
     @Test
     void putUpdatesFoundPart() {
-        when(partService.getById(1L)).thenReturn(dto());
 
         var response = partController.put(1L, dto());
 
@@ -110,16 +110,16 @@ class PartControllerTest {
     }
 
     @Test
-    void putReturnsNotFoundWhenPartDoesNotExist() {
-        when(partService.getById(1L)).thenReturn(null);
+    void putPropagatesNotFoundFromTransactionalUpdate() {
+        doThrow(new PartNotFoundException("Part not found or inactive"))
+                .when(partService).put(eq(1L), any());
 
-        assertEquals(HttpStatus.NOT_FOUND, partController.put(1L, dto()).getStatusCode());
-        verify(partService, never()).put(anyLong(), any());
+        assertThrows(PartNotFoundException.class, () -> partController.put(1L, dto()));
+        verify(partService, never()).getById(anyLong());
     }
 
     @Test
     void patchUpdatesFoundPartAndPropagatesInvalidRequest() {
-        when(partService.getById(1L)).thenReturn(dto());
         Map<String, Object> fields = Map.of("name", "Alinhamento");
 
         var response = partController.patch(1L, fields);
@@ -132,27 +132,29 @@ class PartControllerTest {
     }
 
     @Test
-    void patchReturnsNotFoundWhenPartDoesNotExist() {
-        when(partService.getById(1L)).thenReturn(null);
+    void patchPropagatesNotFoundFromTransactionalUpdate() {
+        doThrow(new PartNotFoundException("Part not found or inactive"))
+                .when(partService).patch(eq(1L), any());
 
-        assertEquals(HttpStatus.NOT_FOUND, partController.patch(1L, Map.of("name", "Alinhamento")).getStatusCode());
-        verify(partService, never()).patch(anyLong(), any());
+        assertThrows(PartNotFoundException.class,
+                () -> partController.patch(1L, Map.of("name", "Updated")));
+        verify(partService, never()).getById(anyLong());
     }
 
     @Test
     void deleteRemovesExistingActivePart() {
-        when(partService.isPartExistById(1L)).thenReturn(true);
 
         assertEquals(HttpStatus.OK, partController.deletePart(1L).getStatusCode());
         verify(partService).deleteById(1L);
     }
 
     @Test
-    void deleteReturnsNotFoundWhenPartDoesNotExistOrIsInactive() {
-        when(partService.isPartExistById(1L)).thenReturn(false);
+    void deletePropagatesNotFoundFromTransactionalUpdate() {
+        doThrow(new PartNotFoundException("Part not found or inactive"))
+                .when(partService).deleteById(1L);
 
-        assertEquals(HttpStatus.NOT_FOUND, partController.deletePart(1L).getStatusCode());
-        verify(partService, never()).deleteById(anyLong());
+        assertThrows(PartNotFoundException.class, () -> partController.deletePart(1L));
+        verify(partService, never()).isPartExistById(anyLong());
     }
 
     @Test

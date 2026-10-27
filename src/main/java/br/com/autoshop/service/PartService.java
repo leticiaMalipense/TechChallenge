@@ -3,6 +3,7 @@ package br.com.autoshop.service;
 import br.com.autoshop.controller.dto.PartDTO;
 import br.com.autoshop.exception.AlreadyExistsException;
 import br.com.autoshop.exception.RequestInvalidException;
+import br.com.autoshop.exception.PartNotFoundException;
 import br.com.autoshop.repository.model.PartEntity;
 import br.com.autoshop.repository.PartRepository;
 import br.com.autoshop.util.PartType;
@@ -52,16 +53,13 @@ public class PartService {
 
     @Transactional
     public void put(Long id, PartDTO dto) {
-        Optional<PartEntity> current = partRepository.findActiveByIdForUpdate(id);
-        if (current.isEmpty()) {
-            return;
-        }
-        PartEntity existing = current.get();
+        PartEntity existing = getActivePartForUpdate(id);
         if (!Objects.equals(existing.getCode(), dto.getCode())
                 && partRepository.existsByCode(dto.getCode())) {
             throw new AlreadyExistsException("Part code already exists");
         }
 
+        validateUnitChange(existing, dto.getUnit());
         partRepository.save(builderPartEntity(dto)
                 .id(existing.getId())
                 .creationDate(existing.getCreationDate())
@@ -72,12 +70,7 @@ public class PartService {
 
     @Transactional
     public void patch(Long id, Map<String, Object> fields) throws RequestInvalidException {
-        Optional<PartEntity> partEntityOptional = partRepository.findActiveByIdForUpdate(id);
-        if (partEntityOptional.isEmpty()) {
-            return;
-        }
-
-        PartEntity part = partEntityOptional.get();
+        PartEntity part = getActivePartForUpdate(id);
         AtomicBoolean isDifferent = new AtomicBoolean(false);
         fields.forEach((key, value) -> {
             if (Objects.isNull(value)) {
@@ -122,6 +115,7 @@ public class PartService {
                     if (!PartUnit.isValueOf(converted)) {
                         throw new RequestInvalidException("PartUnit is invalid");
                     }
+                    validateUnitChange(part, PartUnit.valueOf(converted));
                     part.setUnit(PartUnit.valueOf(converted));
                     isDifferent.set(true);
                 }
@@ -145,8 +139,8 @@ public class PartService {
 
     @Transactional
     public void deleteById(Long id) {
-        partRepository.findActiveByIdForUpdate(id)
-                .ifPresent(part -> partRepository.updateActiveById(Boolean.FALSE, id));
+        getActivePartForUpdate(id);
+        partRepository.updateActiveById(Boolean.FALSE, id);
     }
 
     public boolean isPartExistById(Long id) {
@@ -190,6 +184,17 @@ public class PartService {
         part.setStockQuantity(part.getStockQuantity().subtract(quantity));
         partRepository.save(part);
         return convertToDto(part);
+    }
+
+    private PartEntity getActivePartForUpdate(Long id) {
+        return partRepository.findActiveByIdForUpdate(id)
+                .orElseThrow(() -> new PartNotFoundException("Part not found or inactive"));
+    }
+
+    private void validateUnitChange(PartEntity part, PartUnit unit) {
+        if (!Objects.equals(part.getUnit(), unit) && part.getStockQuantity().signum() != 0) {
+            throw new RequestInvalidException("Unit cannot change while stock balance is not zero");
+        }
     }
 
     private void validateStockQuantity(BigDecimal quantity) {

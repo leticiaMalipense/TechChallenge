@@ -3,7 +3,8 @@ plugins {
     jacoco
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.sonarqube") version "5.0.0.4638"
+    id("org.sonarqube") version "7.5.0.8588"
+    id("io.github.f-cramer.jasperreports") version "0.0.4"
     kotlin("jvm")
     kotlin("plugin.jpa") version "2.4.10"
     kotlin("plugin.lombok") version "2.4.10"
@@ -19,7 +20,18 @@ java {
     }
 }
 
+sonar {
+    properties {
+        property("sonar.projectKey", "TechChallenge")
+        property("sonar.projectName", "TechChallenge")
+    }
+}
+
 repositories {
+    maven {
+        url = uri("https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/")
+        content { includeGroup("com.github.librepdf") }
+    }
     mavenCentral()
 }
 
@@ -31,6 +43,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    implementation("net.sf.jasperreports:jasperreports:6.20.6")
+    implementation("com.github.librepdf:openpdf:1.3.30.jaspersoft.3")
 
     implementation("br.com.caelum.stella:caelum-stella-core:2.2.2")
 
@@ -77,7 +91,9 @@ tasks.jacocoTestCoverageVerification {
             element = "CLASS"
             includes = listOf(
                 "br.com.autoshop.controller.ServiceOfferingController",
-                "br.com.autoshop.service.ServiceOfferingService"
+                "br.com.autoshop.service.ServiceOfferingService",
+                "br.com.autoshop.controller.PartController",
+                "br.com.autoshop.service.PartService"
             )
             limit {
                 counter = "LINE"

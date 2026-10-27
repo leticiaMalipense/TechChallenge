@@ -3,6 +3,7 @@ package br.com.autoshop.service;
 import br.com.autoshop.controller.dto.PartDTO;
 import br.com.autoshop.exception.AlreadyExistsException;
 import br.com.autoshop.exception.RequestInvalidException;
+import br.com.autoshop.exception.PartNotFoundException;
 import br.com.autoshop.repository.PartRepository;
 import br.com.autoshop.repository.model.PartEntity;
 import br.com.autoshop.util.PartType;
@@ -162,7 +163,7 @@ class PartServiceTest {
     void putPreservesIdentityCreationDateAndActiveState() {
         PartRepository repository = mock(PartRepository.class);
         var creationDate = LocalDateTime.of(2025, 1, 1, 10, 0);
-        PartEntity part = PartEntity.builder().id(1L).code("F01").stockQuantity(new BigDecimal("2.5")).creationDate(creationDate).build();
+        PartEntity part = PartEntity.builder().id(1L).code("F01").unit(PartUnit.UNIT).stockQuantity(new BigDecimal("2.5")).creationDate(creationDate).build();
         when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
         PartDTO dto = PartDTO.builder().id(99L).name("New filter").code("F02")
                 .description("Updated").category("Filters")
@@ -200,8 +201,11 @@ class PartServiceTest {
         assertNull(service.getById(1L));
         assertNull(service.getByCode("F01"));
         assertFalse(service.isPartExistById(1L));
-        service.put(1L, PartDTO.builder().code("F01").build());
-        service.patch(1L, Map.of("name", "Updated"));
+        assertThrows(PartNotFoundException.class,
+                () -> service.put(1L, PartDTO.builder().code("F01").build()));
+        assertThrows(PartNotFoundException.class,
+                () -> service.patch(1L, Map.of("name", "Updated")));
+        assertThrows(PartNotFoundException.class, () -> service.deleteById(1L));
 
         verify(repository, never()).save(any());
     }
