@@ -74,7 +74,7 @@ class PartServiceTest {
     @Test
     void putRejectsDuplicateCodeWithoutSaving() {
         PartRepository repository = mock(PartRepository.class);
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(
                 Optional.of(PartEntity.builder().id(1L).code("F01").build()));
         when(repository.existsByCode("F02")).thenReturn(true);
 
@@ -87,7 +87,7 @@ class PartServiceTest {
     @Test
     void putAllowsUnchangedCode() {
         PartRepository repository = mock(PartRepository.class);
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(
                 Optional.of(PartEntity.builder().id(1L).code("F01").build()));
 
         new PartService(repository).put(1L, PartDTO.builder().code("F01").build());
@@ -100,6 +100,9 @@ class PartServiceTest {
     void deleteDeactivatesPartWithoutPhysicalDeletion() {
         PartRepository repository = mock(PartRepository.class);
 
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(
+                Optional.of(PartEntity.builder().id(1L).build()));
+
         new PartService(repository).deleteById(1L);
 
         verify(repository).updateActiveById(false, 1L);
@@ -110,7 +113,7 @@ class PartServiceTest {
     @ValueSource(strings = {"partType", "unit"})
     void patchRejectsUnknownEnumValues(String field) {
         PartRepository repository = mock(PartRepository.class);
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(
                 Optional.of(PartEntity.builder().id(1L).build()));
 
         assertThrows(RequestInvalidException.class,
@@ -123,7 +126,7 @@ class PartServiceTest {
     void patchUpdatesOptionalFieldsAndEnums() {
         PartRepository repository = mock(PartRepository.class);
         PartEntity part = PartEntity.builder().id(1L).name("Filter").code("F01").build();
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
 
         new PartService(repository).patch(1L, Map.of("description", "Oil", "category", "Fluids",
                 "partType", "SUPPLY", "unit", "LITER"));
@@ -141,7 +144,7 @@ class PartServiceTest {
     void patchIgnoresNullAndUnknownFieldsWithoutSaving() {
         PartRepository repository = mock(PartRepository.class);
         PartEntity part = PartEntity.builder().id(1L).name("Filter").build();
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
         Map<String, Object> fields = new HashMap<>();
         fields.put("name", null);
         fields.put("active", false);
@@ -159,8 +162,8 @@ class PartServiceTest {
     void putPreservesIdentityCreationDateAndActiveState() {
         PartRepository repository = mock(PartRepository.class);
         var creationDate = LocalDateTime.of(2025, 1, 1, 10, 0);
-        PartEntity part = PartEntity.builder().id(1L).code("F01").creationDate(creationDate).build();
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+        PartEntity part = PartEntity.builder().id(1L).code("F01").stockQuantity(new BigDecimal("2.5")).creationDate(creationDate).build();
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
         PartDTO dto = PartDTO.builder().id(99L).name("New filter").code("F02")
                 .description("Updated").category("Filters")
                 .partType(PartType.PART)
@@ -174,6 +177,7 @@ class PartServiceTest {
         PartEntity saved = captor.getValue();
         assertEquals(1L, saved.getId());
         assertEquals(creationDate, saved.getCreationDate());
+        assertEquals(new BigDecimal("2.5"), saved.getStockQuantity());
         assertEquals(true, saved.getActive());
         assertEquals(dto.getName(), saved.getName());
         assertEquals(dto.getCode(), saved.getCode());
@@ -190,6 +194,7 @@ class PartServiceTest {
         PartRepository repository = mock(PartRepository.class);
         when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.empty());
         when(repository.findByCodeAndActiveTrue("F01")).thenReturn(Optional.empty());
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.empty());
         PartService service = new PartService(repository);
 
         assertNull(service.getById(1L));
@@ -223,7 +228,7 @@ class PartServiceTest {
         for (String field : new String[]{"name", "code"}) {
             PartRepository repository = mock(PartRepository.class);
             PartEntity part = PartEntity.builder().id(1L).name("Filter").code("F01").build();
-            when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+            when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
 
             assertThrows(RequestInvalidException.class,
                     () -> new PartService(repository).patch(1L, Map.of(field, value)));
@@ -238,7 +243,7 @@ class PartServiceTest {
     void patchUpdatesNameAndCode() {
         PartRepository repository = mock(PartRepository.class);
         PartEntity part = PartEntity.builder().id(1L).name("Filter").code("F01").build();
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
 
         new PartService(repository).patch(1L, Map.of("name", "Oil filter", "code", "F02"));
 
@@ -251,7 +256,7 @@ class PartServiceTest {
     void patchRejectsDuplicateCodeWithoutChangingEntity() {
         PartRepository repository = mock(PartRepository.class);
         PartEntity part = PartEntity.builder().id(1L).code("F01").build();
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
         when(repository.existsByCode("F02")).thenReturn(true);
 
         assertThrows(AlreadyExistsException.class,
@@ -267,7 +272,7 @@ class PartServiceTest {
         for (String field : new String[]{"costPrice", "salePrice"}) {
             PartRepository repository = mock(PartRepository.class);
             PartEntity part = PartEntity.builder().id(1L).build();
-            when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+            when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
 
             assertThrows(RequestInvalidException.class,
                     () -> new PartService(repository).patch(1L, Map.of(field, value)));
@@ -281,7 +286,7 @@ class PartServiceTest {
     void patchAcceptsValidPricesWithoutRounding(String value) {
         PartRepository repository = mock(PartRepository.class);
         PartEntity part = PartEntity.builder().id(1L).build();
-        when(repository.getByIdAndActiveIsTrue(1L)).thenReturn(Optional.of(part));
+        when(repository.findActiveByIdForUpdate(1L)).thenReturn(Optional.of(part));
 
         new PartService(repository).patch(1L, Map.of("costPrice", value, "salePrice", value));
 

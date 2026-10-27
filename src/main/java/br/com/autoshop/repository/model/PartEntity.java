@@ -55,6 +55,10 @@ public class PartEntity {
     private BigDecimal salePrice;
 
     @Builder.Default
+    @Column(nullable = false, precision = 19, scale = 3, columnDefinition = "numeric(19,3) default 0")
+    private BigDecimal stockQuantity = BigDecimal.ZERO;
+
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = Boolean.TRUE;
 

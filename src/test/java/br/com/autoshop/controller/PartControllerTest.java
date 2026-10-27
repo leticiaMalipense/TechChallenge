@@ -6,6 +6,7 @@ import br.com.autoshop.util.PartUnit;
 import java.math.BigDecimal;
 
 import br.com.autoshop.controller.dto.PartDTO;
+import br.com.autoshop.controller.dto.StockMovementDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.PartService;
 import org.junit.jupiter.api.AfterEach;
@@ -152,6 +153,38 @@ class PartControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, partController.deletePart(1L).getStatusCode());
         verify(partService, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void stockEntryReturnsUpdatedBalance() {
+        PartDTO expected = dto();
+        expected.setStockQuantity(BigDecimal.TEN);
+        when(partService.addStock(1L, BigDecimal.TEN)).thenReturn(expected);
+
+        var response = partController.addStock(1L, StockMovementDTO.builder().quantity(BigDecimal.TEN).build());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertSame(expected, response.getBody());
+    }
+
+    @Test
+    void stockExitReturnsUpdatedBalance() {
+        PartDTO expected = dto();
+        expected.setStockQuantity(BigDecimal.ZERO);
+        when(partService.removeStock(1L, BigDecimal.TEN)).thenReturn(expected);
+
+        var response = partController.removeStock(1L, StockMovementDTO.builder().quantity(BigDecimal.TEN).build());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertSame(expected, response.getBody());
+    }
+
+    @Test
+    void stockMovementsReturnNotFoundForUnavailablePart() {
+        StockMovementDTO movement = StockMovementDTO.builder().quantity(BigDecimal.ONE).build();
+
+        assertEquals(HttpStatus.NOT_FOUND, partController.addStock(1L, movement).getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, partController.removeStock(1L, movement).getStatusCode());
     }
 
     private static PartDTO dto() {

@@ -50,8 +50,9 @@ public class PartService {
         return partEntity.getId();
     }
 
+    @Transactional
     public void put(Long id, PartDTO dto) {
-        Optional<PartEntity> current = partRepository.getByIdAndActiveIsTrue(id);
+        Optional<PartEntity> current = partRepository.findActiveByIdForUpdate(id);
         if (current.isEmpty()) {
             return;
         }
@@ -65,11 +66,13 @@ public class PartService {
                 .id(existing.getId())
                 .creationDate(existing.getCreationDate())
                 .active(existing.getActive())
+                .stockQuantity(existing.getStockQuantity())
                 .build());
     }
 
+    @Transactional
     public void patch(Long id, Map<String, Object> fields) throws RequestInvalidException {
-        Optional<PartEntity> partEntityOptional = partRepository.getByIdAndActiveIsTrue(id);
+        Optional<PartEntity> partEntityOptional = partRepository.findActiveByIdForUpdate(id);
         if (partEntityOptional.isEmpty()) {
             return;
         }
@@ -142,7 +145,8 @@ public class PartService {
 
     @Transactional
     public void deleteById(Long id) {
-        partRepository.updateActiveById(Boolean.FALSE, id);
+        partRepository.findActiveByIdForUpdate(id)
+                .ifPresent(part -> partRepository.updateActiveById(Boolean.FALSE, id));
     }
 
     public boolean isPartExistById(Long id) {
@@ -151,6 +155,50 @@ public class PartService {
 
     public Page<PartDTO> getAll(Pageable pageable) {
         return partRepository.findByActiveTrue(pageable).map(this::convertToDto);
+    }
+
+    @Transactional
+    public PartDTO addStock(Long id, BigDecimal quantity) {
+        validateStockQuantity(quantity);
+        Optional<PartEntity> current = partRepository.findActiveByIdForUpdate(id);
+        if (current.isEmpty()) {
+            return null;
+        }
+
+        PartEntity part = current.get();
+        BigDecimal balance = part.getStockQuantity().add(quantity);
+        if (balance.precision() - balance.scale() > 16) {
+            throw new RequestInvalidException("Stock balance exceeds 16 integer digits");
+        }
+        part.setStockQuantity(balance);
+        partRepository.save(part);
+        return convertToDto(part);
+    }
+
+    @Transactional
+    public PartDTO removeStock(Long id, BigDecimal quantity) {
+        validateStockQuantity(quantity);
+        Optional<PartEntity> current = partRepository.findActiveByIdForUpdate(id);
+        if (current.isEmpty()) {
+            return null;
+        }
+
+        PartEntity part = current.get();
+        if (part.getStockQuantity().compareTo(quantity) < 0) {
+            throw new RequestInvalidException("Insufficient stock");
+        }
+        part.setStockQuantity(part.getStockQuantity().subtract(quantity));
+        partRepository.save(part);
+        return convertToDto(part);
+    }
+
+    private void validateStockQuantity(BigDecimal quantity) {
+        if (quantity == null || quantity.signum() <= 0) {
+            throw new RequestInvalidException("Quantity must be positive");
+        }
+        if (quantity.precision() - quantity.scale() > 16 || quantity.scale() > 3) {
+            throw new RequestInvalidException("Quantity must have at most 16 integer digits and 3 fraction digits");
+        }
     }
 
     private BigDecimal parsePrice(String value) {
@@ -171,6 +219,7 @@ public class PartService {
     private PartDTO convertToDto(PartEntity entity) {
         return PartDTO.builder()
                 .id(entity.getId())
+                .stockQuantity(entity.getStockQuantity())
                 .name(entity.getName())
                 .code(entity.getCode())
                 .description(entity.getDescription())

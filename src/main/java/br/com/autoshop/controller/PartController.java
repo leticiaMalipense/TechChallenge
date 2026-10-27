@@ -1,6 +1,10 @@
 package br.com.autoshop.controller;
 
 import br.com.autoshop.controller.dto.PartDTO;
+import br.com.autoshop.controller.dto.StockMovementDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import br.com.autoshop.service.PartService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -23,6 +27,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.Map;
 
+@SecurityRequirement
+@Tag(name = "Part", description = "Cadastro de peças, insumos e controle de estoque")
 @RestController
 @RequestMapping("/part")
 public class PartController {
@@ -85,6 +91,28 @@ public class PartController {
 
         partService.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Registrar entrada de estoque",
+            description = "Acrescenta uma quantidade positiva ao saldo de uma peça ou insumo ativo.")
+    @PostMapping("/{id}/stock/entries")
+    public ResponseEntity<PartDTO> addStock(@PathVariable Long id, @Valid @RequestBody StockMovementDTO dto) {
+        PartDTO part = partService.addStock(id, dto.getQuantity());
+        if (part == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(part);
+    }
+
+    @Operation(summary = "Registrar saída de estoque",
+            description = "Retira uma quantidade positiva do saldo. Rejeita saldo insuficiente e itens inativos.")
+    @PostMapping("/{id}/stock/exits")
+    public ResponseEntity<PartDTO> removeStock(@PathVariable Long id, @Valid @RequestBody StockMovementDTO dto) {
+        PartDTO part = partService.removeStock(id, dto.getQuantity());
+        if (part == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(part);
     }
 
     private static URI getLocation(Long id) {

@@ -25,6 +25,9 @@ public class PartDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private BigDecimal stockQuantity;
+
     @NotBlank(message = "Name cannot be empty")
     private String name;
 
