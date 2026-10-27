@@ -26,4 +26,10 @@ public class GlobalExceptionHandler {
 
         return errors;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(RequestInvalidException.class)
+    public Map<String, String> handleRequestInvalidException(RequestInvalidException ex) {
+        return Map.of("error", ex.getMessage());
+    }
 }

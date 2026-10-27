@@ -1,6 +1,6 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.PartDTO;
+import br.com.autoshop.controller.dto.PartDTO;
 import br.com.autoshop.service.PartService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;

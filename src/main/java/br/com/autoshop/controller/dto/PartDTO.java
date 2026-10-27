@@ -1,4 +1,4 @@
-package br.com.autoshop.dto;
+package br.com.autoshop.controller.dto;
 
 import br.com.autoshop.util.PartType;
 import br.com.autoshop.util.PartUnit;

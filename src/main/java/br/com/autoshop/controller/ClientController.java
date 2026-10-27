@@ -1,8 +1,10 @@
 package br.com.autoshop.controller;
 
-import br.com.autoshop.dto.ClientDTO;
+import br.com.autoshop.controller.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ClientService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
@@ -18,8 +20,10 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
+@SecurityRequirement
 @RestController
 @RequestMapping("/client")
+@Tag(name = "Client")
 public class ClientController {
 
     private final ClientService clientService;
@@ -30,8 +34,7 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<Void> postClient(@Valid @RequestBody ClientDTO dto) {
-        ClientDTO client = clientService.getByDocument(dto.getDocument());
-        if (Objects.nonNull(client)) {
+        if (clientService.isClientExistByDocumentOrEmail(dto.getDocument(), dto.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 

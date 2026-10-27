@@ -1,9 +1,9 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.PartDTO;
+import br.com.autoshop.controller.dto.PartDTO;
 import br.com.autoshop.exception.AlreadyExistsException;
 import br.com.autoshop.exception.RequestInvalidException;
-import br.com.autoshop.model.PartEntity;
+import br.com.autoshop.repository.model.PartEntity;
 import br.com.autoshop.repository.PartRepository;
 import br.com.autoshop.util.PartType;
 import br.com.autoshop.util.PartUnit;

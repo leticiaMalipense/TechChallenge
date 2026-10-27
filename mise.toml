@@ -1,0 +1,4 @@
+[tools]
+gradle = "9.7.1"
+java = "21.0.2"
+postgres = "15.19"

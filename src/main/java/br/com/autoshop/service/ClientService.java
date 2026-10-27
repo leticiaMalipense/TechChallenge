@@ -1,10 +1,9 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.ClientDTO;
+import br.com.autoshop.controller.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
-import br.com.autoshop.model.ClientEntity;
 import br.com.autoshop.repository.ClientRepository;
-import br.com.autoshop.util.DocumentType;
+import br.com.autoshop.repository.model.ClientEntity;
 import br.com.autoshop.util.EmailValidatorUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,23 +37,26 @@ public class ClientService {
     }
 
     public Long save(ClientDTO dto) {
-        ClientEntity clientEntity = builderClientEntity(dto).build();
-        clientRepository.save(clientEntity);
-        return clientEntity.getId();
-    }
-
-    public void put(Long id, ClientDTO dto) {
-        ClientEntity clientEntity = builderClientEntity(dto).id(id).build();
-        clientRepository.save(clientEntity);
-    }
-
-    public ClientEntity.ClientEntityBuilder builderClientEntity(ClientDTO dto) {
-        return ClientEntity.builder()
+        ClientEntity clientEntity = ClientEntity.builder()
                 .name(dto.getName())
                 .document(dto.getDocument())
                 .documentType(dto.getDocumentType())
                 .email(dto.getEmail())
-                .phone(dto.getPhone());
+                .phone(dto.getPhone())
+                .build();
+        ClientEntity saved = clientRepository.save(clientEntity);
+        return saved.getId();
+    }
+
+    public void put(Long id, ClientDTO dto) {
+        ClientEntity clientEntity = ClientEntity.builder()
+                .name(dto.getName())
+                .document(dto.getDocument())
+                .documentType(dto.getDocumentType())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
+                .id(id).build();
+        clientRepository.save(clientEntity);
     }
 
     public void patch(Long id, Map<String, Object> fields) throws RequestInvalidException {
@@ -71,13 +73,6 @@ public class ClientService {
                     switch (key) {
                         case "name" -> {
                             client.setName(converted);
-                            isDifferent.set(true);
-                        }
-                        case "documentType" -> {
-                            if (!DocumentType.isValueOf(converted)) {
-                                throw new RequestInvalidException(DOCUMENT_TYPE_IS_INVALID);
-                            }
-                            client.setDocumentType(DocumentType.valueOf(converted));
                             isDifferent.set(true);
                         }
                         case "document" -> {
@@ -111,7 +106,7 @@ public class ClientService {
     }
 
     public boolean isClientExistById(Long id) {
-        Optional<ClientEntity> client = clientRepository.getByIdAndActiveIsTrue(id);
+        Optional<ClientEntity> client = clientRepository.getByIdAndStatusIsTrue(id);
         return client.isPresent();
     }
 
@@ -119,7 +114,7 @@ public class ClientService {
         Page<ClientEntity> clientEntityPage = clientRepository.findAll(pageable);
         return clientEntityPage.map(this::convertToDto);
     }
-    
+
     private ClientDTO convertToDto(ClientEntity entity) {
         return ClientDTO.builder()
                 .name(entity.getName())
@@ -128,5 +123,9 @@ public class ClientService {
                 .phone(entity.getPhone())
                 .email(entity.getEmail())
                 .build();
+    }
+
+    public boolean isClientExistByDocumentOrEmail(String document, String email) {
+        return clientRepository.getByDocumentOrEmail(document, email).isPresent();
     }
 }

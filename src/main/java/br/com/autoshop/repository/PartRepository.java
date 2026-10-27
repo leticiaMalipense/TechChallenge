@@ -1,6 +1,6 @@
 package br.com.autoshop.repository;
 
-import br.com.autoshop.model.PartEntity;
+import br.com.autoshop.repository.model.PartEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.domain.Page;
