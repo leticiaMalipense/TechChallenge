@@ -3,7 +3,7 @@ plugins {
     jacoco
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.sonarqube") version "5.0.0.4638"
+    id("org.sonarqube") version "7.5.0.8588"
     id("io.github.f-cramer.jasperreports") version "0.0.4"
     kotlin("jvm")
     kotlin("plugin.jpa") version "2.4.10"
@@ -17,6 +17,13 @@ version = "0.0.1-SNAPSHOT"
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "TechChallenge")
+        property("sonar.projectName", "TechChallenge")
     }
 }
 

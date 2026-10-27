@@ -1,7 +1,8 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.ServiceOfferingDTO;
-import br.com.autoshop.dto.WorkOrderResponseDTO;
+
+import br.com.autoshop.controller.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.core.io.ClassPathResource;

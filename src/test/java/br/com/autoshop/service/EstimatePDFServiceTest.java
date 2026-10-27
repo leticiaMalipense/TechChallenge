@@ -1,7 +1,7 @@
 package br.com.autoshop.service;
 
-import br.com.autoshop.dto.ServiceOfferingDTO;
-import br.com.autoshop.dto.WorkOrderResponseDTO;
+import br.com.autoshop.controller.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.util.WorkOrderStatus;
 import net.sf.jasperreports.engine.JRException;
 import org.junit.jupiter.api.Test;
