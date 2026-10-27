@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface PartRepository extends JpaRepository<PartEntity, Long> {
 
-    Optional<PartEntity> findByCode(String code);
+    Optional<PartEntity> findByCodeAndActiveTrue(String code);
 
     Page<PartEntity> findByActiveTrue(Pageable pageable);
 
@@ -21,6 +21,6 @@ public interface PartRepository extends JpaRepository<PartEntity, Long> {
     Optional<PartEntity> getByIdAndActiveIsTrue(Long id);
 
     @Modifying
-    @Query("UPDATE PartEntity p SET p.active = :active WHERE p.id = :id")
+    @Query("UPDATE PartEntity p SET p.active = :active WHERE p.id = :id AND p.active = true")
     int updateActiveById(@Param("active") boolean active, @Param("id") Long id);
 }

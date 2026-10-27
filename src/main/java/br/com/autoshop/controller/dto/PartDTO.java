@@ -1,5 +1,6 @@
 package br.com.autoshop.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import br.com.autoshop.util.PartType;
 import br.com.autoshop.util.PartUnit;
 import jakarta.validation.constraints.Digits;
@@ -20,6 +21,9 @@ import java.math.BigDecimal;
 public class PartDTO {
 
     public static final String INVALID_PRICE_MESSAGE = "must have at most 17 integer digits and 2 fraction digits";
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Long id;
 
     @NotBlank(message = "Name cannot be empty")
     private String name;

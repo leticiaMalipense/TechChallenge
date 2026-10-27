@@ -28,13 +28,13 @@ public class PartService {
     }
 
     public PartDTO getById(Long id) {
-        return partRepository.findById(id)
+        return partRepository.getByIdAndActiveIsTrue(id)
                 .map(this::convertToDto)
                 .orElse(null);
     }
 
     public PartDTO getByCode(String code) {
-        return partRepository.findByCode(code)
+        return partRepository.findByCodeAndActiveTrue(code)
                 .map(this::convertToDto)
                 .orElse(null);
     }
@@ -51,18 +51,25 @@ public class PartService {
     }
 
     public void put(Long id, PartDTO dto) {
-        Optional<PartEntity> current = partRepository.findById(id);
-        if (current.isPresent()
-                && !Objects.equals(current.get().getCode(), dto.getCode())
+        Optional<PartEntity> current = partRepository.getByIdAndActiveIsTrue(id);
+        if (current.isEmpty()) {
+            return;
+        }
+        PartEntity existing = current.get();
+        if (!Objects.equals(existing.getCode(), dto.getCode())
                 && partRepository.existsByCode(dto.getCode())) {
             throw new AlreadyExistsException("Part code already exists");
         }
 
-        partRepository.save(builderPartEntity(dto).id(id).build());
+        partRepository.save(builderPartEntity(dto)
+                .id(existing.getId())
+                .creationDate(existing.getCreationDate())
+                .active(existing.getActive())
+                .build());
     }
 
     public void patch(Long id, Map<String, Object> fields) throws RequestInvalidException {
-        Optional<PartEntity> partEntityOptional = partRepository.findById(id);
+        Optional<PartEntity> partEntityOptional = partRepository.getByIdAndActiveIsTrue(id);
         if (partEntityOptional.isEmpty()) {
             return;
         }
@@ -77,6 +84,9 @@ public class PartService {
             String converted = String.valueOf(value);
             switch (key) {
                 case "name" -> {
+                    if (converted.isBlank()) {
+                        throw new RequestInvalidException("Name cannot be empty");
+                    }
                     part.setName(converted);
                     isDifferent.set(true);
                 }
@@ -85,6 +95,9 @@ public class PartService {
                     isDifferent.set(true);
                 }
                 case "code" -> {
+                    if (converted.isBlank()) {
+                        throw new RequestInvalidException("Code cannot be empty");
+                    }
                     if (!Objects.equals(part.getCode(), converted) && partRepository.existsByCode(converted)) {
                         throw new AlreadyExistsException("Part code already exists");
                     }
@@ -142,7 +155,14 @@ public class PartService {
 
     private BigDecimal parsePrice(String value) {
         try {
-            return new BigDecimal(value);
+            BigDecimal price = new BigDecimal(value);
+            if (price.signum() < 0) {
+                throw new RequestInvalidException("Price must be positive or zero");
+            }
+            if (price.precision() - price.scale() > 17 || price.scale() > 2) {
+                throw new RequestInvalidException("Price " + PartDTO.INVALID_PRICE_MESSAGE);
+            }
+            return price;
         } catch (NumberFormatException exception) {
             throw new RequestInvalidException("Price must be a valid number");
         }
@@ -150,6 +170,7 @@ public class PartService {
 
     private PartDTO convertToDto(PartEntity entity) {
         return PartDTO.builder()
+                .id(entity.getId())
                 .name(entity.getName())
                 .code(entity.getCode())
                 .description(entity.getDescription())
