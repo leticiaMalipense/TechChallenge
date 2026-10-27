@@ -78,7 +78,3 @@ docker compose down
 
 Os dados dos bancos e do SonarQube são mantidos nos volumes do Compose. Para removê-los junto com os containers, use
 `docker compose down -v`.
-
-## Peças, insumos e estoque
-
-Regras de cadastro e estoque, exemplos de requisições e testes estão em [Peças e estoque](docs/pecas-e-estoque.md).
