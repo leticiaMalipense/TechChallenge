@@ -98,6 +98,7 @@ public class ServiceOfferingService {
                             serviceOffering.setEstimatedDurationMinutes(duration);
                             isDifferent.set(true);
                         }
+                        default -> throw new RequestInvalidException("Unsupported service offering field: " + key);
                     }
                 }
             });

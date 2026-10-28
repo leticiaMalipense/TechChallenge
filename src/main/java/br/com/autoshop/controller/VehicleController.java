@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -27,6 +28,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/vehicle")
 @Tag(name = "Vehicle", description = "Gerenciamento do cadastro de veículos atendidos pela oficina, incluindo identificação por placa, marca, modelo, ano e histórico de última revisão.")
+@PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
 public class VehicleController {
 
     private final VehicleService vehicleService;

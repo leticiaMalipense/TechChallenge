@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,6 +25,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/client")
 @Tag(name = "Client")
+@PreAuthorize("hasRole('ADMIN')")
 public class ClientController {
 
     private final ClientService clientService;

@@ -1,6 +1,5 @@
 package br.com.autoshop.config.security;
 
-import br.com.autoshop.repository.model.UserEntity;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,28 +8,35 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.io.Serial;
 
 public class UserAuthenticated implements UserDetails {
-    private final UserEntity user;
+    @Serial
+    private static final long serialVersionUID = 1L;
+    private final String email;
+    private final String password;
+    private final String role;
 
-    public UserAuthenticated(UserEntity user) {
-        this.user = user;
+    public UserAuthenticated(br.com.autoshop.repository.model.UserEntity user) {
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.role = user.getRole() == null ? null : user.getRole().name();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+        return role == null ? List.of() : List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
 
     @Override
     public @Nullable String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public @NonNull String getUsername() {
-        return user.getEmail();
+        return email;
     }
 
 }

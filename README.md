@@ -2,6 +2,12 @@
 
 Aplicação de gestão de oficina desenvolvida com Java 21, Spring Boot, Gradle e PostgreSQL.
 
+## Documentação funcional
+
+- [Módulo de Ordem de Serviço](docs/ddd/modulo_ordem_de_servico.md): fluxo, endpoints e integração de PDF/e-mail.
+- [Diagrama do envio e aprovação da OS](docs/ddd/diagrama_envio_email_aprovacao_os.md): fluxo Mermaid para usar na
+  descrição do pull request.
+
 ## Pré-requisitos
 
 - Java 21 (JDK)
@@ -57,6 +63,11 @@ Quando iniciados pelo Compose, os serviços ficam disponíveis em:
 
 No pgAdmin, para conectar ao banco do Compose, use `db` como host quando o pgAdmin estiver no container; a porta é
 `5432`, o banco é `autoshop` e o usuário/senha são `postgres`.
+
+Para testar o envio de e-mail com Mailpit no Compose, inicie também `docker compose up -d mailpit`. A caixa de entrada
+fica em `http://localhost:8025` (SMTP em `localhost:1025`). Quando o app também roda no Compose, ele usa o hostname
+`mailpit` para acessar o SMTP; quando iniciado com Gradle no host, use `SMTP_HOST=localhost`. O Mailpit apenas captura
+as mensagens de teste, não as envia a destinatários externos.
 
 ## Compilar e executar testes
 
