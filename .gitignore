@@ -38,3 +38,6 @@ out/
 
 ### Git Workflows ###
 .github
+.github/
+.github/workflows/
+.github/workflows/build.yml
