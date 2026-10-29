@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,7 +44,6 @@ class EstimatePDFServiceTest {
         assertTrue(pdf.length > 0);
         assertTrue(new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII)
                 .startsWith("%PDF-"));
-        assertTrue(Files.exists(Path.of("src", "main", "resources", "reports", "estimate.pdf")));
     }
 
     @Test

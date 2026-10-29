@@ -1,6 +1,7 @@
 package br.com.autoshop.service;
 
 import br.com.autoshop.controller.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.WorkOrderEmailDeliveryDTO;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
@@ -17,6 +18,7 @@ import br.com.autoshop.util.WorkOrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,17 +45,20 @@ public class WorkOrderService {
     private final ClientRepository clientRepository;
     private final VehicleRepository vehicleRepository;
     private final ServiceOfferingRepository serviceOfferingRepository;
+    private final WorkOrderQuoteDeliveryService quoteDeliveryService;
 
     public WorkOrderService(
             WorkOrderRepository workOrderRepository,
             ClientRepository clientRepository,
             VehicleRepository vehicleRepository,
-            ServiceOfferingRepository serviceOfferingRepository
+            ServiceOfferingRepository serviceOfferingRepository,
+            WorkOrderQuoteDeliveryService quoteDeliveryService
     ) {
         this.workOrderRepository = workOrderRepository;
         this.clientRepository = clientRepository;
         this.vehicleRepository = vehicleRepository;
         this.serviceOfferingRepository = serviceOfferingRepository;
+        this.quoteDeliveryService = quoteDeliveryService;
     }
 
     public WorkOrderResponseDTO create(WorkOrderRequestDTO dto) {
@@ -145,18 +150,49 @@ public class WorkOrderService {
         workOrder.setUpdateDate(LocalDateTime.now());
 
         WorkOrderEntity saved = workOrderRepository.save(workOrder);
-        sendEstimateToClient(saved);
+        quoteDeliveryService.sendForApproval(saved, convertToResponseDto(saved));
 
         return convertToResponseDto(saved);
     }
 
+    public WorkOrderResponseDTO resendEstimateEmail(UUID id) {
+        WorkOrderEntity workOrder = getWorkOrderOrThrow(id);
+        if (workOrder.getStatus() != WorkOrderStatus.AWAITING_APPROVAL) {
+            throw new RequestInvalidException(
+                    INVALID_STATUS_TRANSITION + workOrder.getStatus() + " when resending the estimate"
+            );
+        }
+        quoteDeliveryService.sendForApproval(workOrder, convertToResponseDto(workOrder));
+        return convertToResponseDto(workOrder);
+    }
+
+    public WorkOrderEmailDeliveryDTO getLatestEmailDelivery(UUID id) {
+        getWorkOrderOrThrow(id);
+        return quoteDeliveryService.getLatestDelivery(id);
+    }
+
+    @Transactional
     public WorkOrderResponseDTO approve(UUID id) {
         WorkOrderEntity workOrder = getWorkOrderOrThrow(id);
         validateTransition(workOrder, WorkOrderStatus.AWAITING_APPROVAL, WorkOrderStatus.IN_EXECUTION);
 
+        LocalDateTime now = LocalDateTime.now();
+        int updated = workOrderRepository.transitionStatus(
+                id,
+                WorkOrderStatus.AWAITING_APPROVAL,
+                WorkOrderStatus.IN_EXECUTION,
+                now
+        );
+        if (updated != 1) {
+            throw new RequestInvalidException(
+                    INVALID_STATUS_TRANSITION + WorkOrderStatus.AWAITING_APPROVAL + " to " + WorkOrderStatus.IN_EXECUTION
+            );
+        }
+
         workOrder.setStatus(WorkOrderStatus.IN_EXECUTION);
-        workOrder.setUpdateDate(LocalDateTime.now());
-        return convertToResponseDto(workOrderRepository.save(workOrder));
+        workOrder.setUpdateDate(now);
+        quoteDeliveryService.revokeApprovalTokens(id);
+        return convertToResponseDto(workOrder);
     }
 
     public WorkOrderResponseDTO finish(UUID id) {
@@ -222,10 +258,6 @@ public class WorkOrderService {
         double partsAndSuppliesTotal = 0.0;
 
         return servicesTotal + partsAndSuppliesTotal;
-    }
-
-    protected void sendEstimateToClient(WorkOrderEntity workOrder) {
-        // TODO: Implementar envio automático do orçamento (e-mail/notificação) ao cliente para aprovação
     }
 
     private VehicleEntity resolveOrCreateVehicle(WorkOrderRequestDTO dto) {
