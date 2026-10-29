@@ -2,6 +2,11 @@
 
 Aplicação de gestão de oficina desenvolvida com Java 21, Spring Boot, Gradle e PostgreSQL.
 
+## Documentação funcional
+
+- [Módulo de Ordem de Serviço](docs/ddd/modulo_ordem_de_servico.md): fluxo, endpoints e integração de PDF/e-mail.
+- [Diagrama do envio e aprovação da OS](docs/ddd/diagrama_envio_email_aprovacao_os.md): fluxo Mermaid para usar na descrição do pull request.
+
 ## Pré-requisitos
 
 - Java 21 (JDK)

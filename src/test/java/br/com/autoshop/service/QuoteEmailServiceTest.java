@@ -60,6 +60,20 @@ class QuoteEmailServiceTest {
     }
 
     @Test
+    void sendsQuoteWithoutApprovalLinkWhenNoApprovalUrlIsProvided() throws Exception {
+        MimeMessage message = new MimeMessage(Session.getInstance(new Properties()));
+        when(mailSender.createMimeMessage()).thenReturn(message);
+
+        service.sendQuote("cliente@example.com", PDF, "orcamento.pdf");
+
+        verify(mailSender).send(message);
+        Multipart content = (Multipart) message.getContent();
+        String body = textContent(content.getBodyPart(0));
+        assertTrue(body.contains("Segue em anexo o orçamento"));
+        assertFalse(body.contains("Para aprovar"));
+    }
+
+    @Test
     void propagatesSmtpSendFailure() {
         when(mailSender.createMimeMessage())
                 .thenReturn(new MimeMessage(Session.getInstance(new Properties())));

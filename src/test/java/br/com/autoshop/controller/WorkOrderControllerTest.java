@@ -3,6 +3,7 @@ package br.com.autoshop.controller;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
+import br.com.autoshop.exception.QuoteDeliveryException;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.WorkOrderService;
 import br.com.autoshop.util.WorkOrderStatus;
@@ -103,5 +104,23 @@ class WorkOrderControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(WorkOrderService.SERVICES_REQUIRED_FOR_APPROVAL, response.getBody().get("error"));
+    }
+
+    @Test
+    void quoteDeliveryFailureReportsPersistedStateAndRetryRoute() {
+        UUID id = UUID.randomUUID();
+        QuoteDeliveryException exception = new QuoteDeliveryException(
+                "Email failed",
+                "FAILED",
+                id,
+                new RuntimeException("SMTP unavailable")
+        );
+
+        var response = workOrderController.handleQuoteDeliveryException(exception);
+
+        assertEquals(HttpStatus.BAD_GATEWAY, response.getStatusCode());
+        assertEquals("FAILED", response.getBody().get("deliveryStatus"));
+        assertEquals("AWAITING_APPROVAL", response.getBody().get("workOrderStatus"));
+        assertEquals("/work-orders/" + id + "/estimate-email/resend", response.getBody().get("retryEndpoint"));
     }
 }
