@@ -4,6 +4,7 @@ import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
+import br.com.autoshop.exception.QuoteDeliveryException;
 import br.com.autoshop.repository.ClientRepository;
 import br.com.autoshop.repository.ServiceOfferingRepository;
 import br.com.autoshop.repository.VehicleRepository;
@@ -44,6 +45,9 @@ class WorkOrderServiceTest {
     @Mock
     private ServiceOfferingRepository serviceOfferingRepository;
 
+    @Mock
+    private WorkOrderQuoteDeliveryService quoteDeliveryService;
+
     private WorkOrderService workOrderService;
 
     private ClientEntity defaultClient;
@@ -57,7 +61,8 @@ class WorkOrderServiceTest {
                 workOrderRepository,
                 clientRepository,
                 vehicleRepository,
-                serviceOfferingRepository
+                serviceOfferingRepository,
+                quoteDeliveryService
         );
 
         defaultClient = ClientEntity.builder()
@@ -185,6 +190,12 @@ class WorkOrderServiceTest {
         when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
         when(serviceOfferingRepository.getByIdAndActiveIsTrue(100L)).thenReturn(Optional.of(oilChangeService));
         when(workOrderRepository.save(any(WorkOrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(workOrderRepository.transitionStatus(
+                eq(id),
+                eq(WorkOrderStatus.AWAITING_APPROVAL),
+                eq(WorkOrderStatus.IN_EXECUTION),
+                any()
+        )).thenReturn(1);
 
         // 1. Add service -> transitions RECEIVED to IN_DIAGNOSIS and updates estimate
         WorkOrderResponseDTO afterAddService = workOrderService.addServices(id, List.of(100L));
@@ -194,6 +205,7 @@ class WorkOrderServiceTest {
         // 2. Send for approval -> transitions IN_DIAGNOSIS to AWAITING_APPROVAL
         WorkOrderResponseDTO afterSendApproval = workOrderService.sendForApproval(id);
         assertEquals(WorkOrderStatus.AWAITING_APPROVAL, afterSendApproval.getStatus());
+        verify(quoteDeliveryService).sendForApproval(any(WorkOrderEntity.class), any(WorkOrderResponseDTO.class));
 
         // 3. Approve -> transitions AWAITING_APPROVAL to IN_EXECUTION
         WorkOrderResponseDTO afterApprove = workOrderService.approve(id);
@@ -208,6 +220,43 @@ class WorkOrderServiceTest {
         assertEquals(WorkOrderStatus.DELIVERED, afterDeliver.getStatus());
         assertNotNull(defaultVehicle.getLastReview());
         verify(vehicleRepository).save(defaultVehicle);
+    }
+
+    @Test
+    void emailFailureDoesNotRollBackAwaitingApprovalStatus() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = WorkOrderEntity.builder()
+                .id(id)
+                .client(defaultClient)
+                .vehicle(defaultVehicle)
+                .status(WorkOrderStatus.IN_DIAGNOSIS)
+                .services(List.of(oilChangeService))
+                .build();
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(workOrderRepository.save(any(WorkOrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        doThrow(new QuoteDeliveryException("SMTP failed", "FAILED", id, new RuntimeException()))
+                .when(quoteDeliveryService).sendForApproval(any(), any());
+
+        assertThrows(QuoteDeliveryException.class, () -> workOrderService.sendForApproval(id));
+
+        assertEquals(WorkOrderStatus.AWAITING_APPROVAL, entity.getStatus());
+        verify(workOrderRepository).save(entity);
+    }
+
+    @Test
+    void estimateCanOnlyBeResentWhileAwaitingApproval() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = WorkOrderEntity.builder()
+                .id(id)
+                .client(defaultClient)
+                .vehicle(defaultVehicle)
+                .status(WorkOrderStatus.FINISHED)
+                .services(List.of(oilChangeService))
+                .build();
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+
+        assertThrows(RequestInvalidException.class, () -> workOrderService.resendEstimateEmail(id));
+        verify(quoteDeliveryService, never()).sendForApproval(any(), any());
     }
 
     @Test

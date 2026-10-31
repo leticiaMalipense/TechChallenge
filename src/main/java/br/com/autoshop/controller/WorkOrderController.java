@@ -1,10 +1,13 @@
 package br.com.autoshop.controller;
 
+import br.com.autoshop.controller.dto.WorkOrderEmailDeliveryDTO;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
+import br.com.autoshop.exception.QuoteDeliveryException;
 import br.com.autoshop.service.WorkOrderService;
+import br.com.autoshop.util.WorkOrderStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -152,11 +156,30 @@ public class WorkOrderController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Orçamento consolidado e OS aguardando aprovação (AWAITING_APPROVAL)"),
-            @ApiResponse(responseCode = "400", description = "Transição inválida ou nenhum serviço vinculado para compor o orçamento")
+            @ApiResponse(responseCode = "400", description = "Transição inválida ou nenhum serviço vinculado para compor o orçamento"),
+            @ApiResponse(responseCode = "502", description = "Falha no envio do e-mail; OS permanece aguardando aprovação")
     })
     @PatchMapping("/{id}/send-for-approval")
     public ResponseEntity<WorkOrderResponseDTO> sendForApproval(@PathVariable UUID id) {
         return ResponseEntity.ok(workOrderService.sendForApproval(id));
+    }
+
+    @Operation(summary = "Reenviar orçamento por e-mail")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Orçamento reenviado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "OS não está aguardando aprovação"),
+            @ApiResponse(responseCode = "502", description = "Falha no envio do e-mail; OS permanece aguardando aprovação")
+    })
+    @PostMapping("/{id}/estimate-email/resend")
+    public ResponseEntity<WorkOrderResponseDTO> resendEstimateEmail(@PathVariable UUID id) {
+        return ResponseEntity.ok(workOrderService.resendEstimateEmail(id));
+    }
+
+    @Operation(summary = "Consultar o estado do último envio do orçamento")
+    @GetMapping("/{id}/estimate-email/latest")
+    public ResponseEntity<WorkOrderEmailDeliveryDTO> getLatestEmailDelivery(@PathVariable UUID id) {
+        WorkOrderEmailDeliveryDTO delivery = workOrderService.getLatestEmailDelivery(id);
+        return delivery == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(delivery);
     }
 
     @Operation(
@@ -223,5 +246,15 @@ public class WorkOrderController {
     @ExceptionHandler(RequestInvalidException.class)
     public ResponseEntity<Map<String, String>> handleRequestInvalidException(RequestInvalidException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(QuoteDeliveryException.class)
+    public ResponseEntity<Map<String, String>> handleQuoteDeliveryException(QuoteDeliveryException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+                "error", ex.getMessage(),
+                "deliveryStatus", ex.getDeliveryStatus(),
+                "workOrderStatus", WorkOrderStatus.AWAITING_APPROVAL.name(),
+                "retryEndpoint", "/work-orders/" + ex.getWorkOrderId() + "/estimate-email/resend"
+        ));
     }
 }

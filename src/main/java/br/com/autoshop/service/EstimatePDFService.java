@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,12 +50,7 @@ public class EstimatePDFService {
                 report, parameters, new JRBeanCollectionDataSource(services));
 
 
-        byte[] document = JasperExportManager.exportReportToPdf(filledReport);
-        Path path = Paths.get("src", "main", "resources", "reports")
-                .resolve("estimate.pdf");
-
-        Files.write(path, document);
-        return document;
+        return JasperExportManager.exportReportToPdf(filledReport);
     }
 
     private String buildVehicleDescription(WorkOrderResponseDTO workOrder) {
