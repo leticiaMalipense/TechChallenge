@@ -54,8 +54,9 @@ class AuthServiceTest {
 
         assertSame(expected, result);
         verify(authenticationManager).authenticate(argThat(token ->
-                token.getPrincipal().equals("ana@example.com")
-                        && token.getCredentials().equals("secret")));
+                token != null
+                        && "ana@example.com".equals(token.getPrincipal())
+                        && "secret".equals(token.getCredentials())));
         verify(jwtService).generateToken(authentication);
     }
 

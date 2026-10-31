@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -34,6 +35,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/work-orders")
 @Tag(name = "Work Order", description = "Gerenciamento completo do ciclo de vida das Ordens de Serviço (OS), desde a recepção do veículo até a entrega e acompanhamento pelo cliente.")
+@PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
 public class WorkOrderController {
 
     private final WorkOrderService workOrderService;
@@ -233,6 +235,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "400", description = "Prefixo do documento inválido/divergente, OS não encontrada ou ainda não aprovada")
     })
     @GetMapping("/{id}/tracking")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<WorkOrderTrackingDTO> trackWorkOrder(
             @PathVariable UUID id,
             @RequestParam String documentPrefix

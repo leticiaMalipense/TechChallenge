@@ -45,10 +45,12 @@ public class UserEntity {
     private Boolean active = Boolean.TRUE;
 
     @CreationTimestamp
+    @Builder.Default
     @Column(updatable = false)
     private LocalDateTime creationDate = LocalDateTime.now();
 
     @UpdateTimestamp
+    @Builder.Default
     @Column
     private LocalDateTime updatedDate = LocalDateTime.now();
 

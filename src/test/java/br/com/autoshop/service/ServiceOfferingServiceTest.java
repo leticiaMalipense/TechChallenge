@@ -112,11 +112,13 @@ class ServiceOfferingServiceTest {
     }
 
     @Test
-    void patchWithNoRecognizedNonNullChangesDoesNotSave() {
+    void patchWithUnknownFieldThrowsAndDoesNotSave() {
         when(serviceOfferingRepository.findById(1L)).thenReturn(Optional.of(serviceOffering(1L)));
 
-        assertDoesNotThrow(() -> serviceOfferingService.patch(1L, Map.of("unknown", "value")));
+        RequestInvalidException exception = assertThrows(RequestInvalidException.class,
+                () -> serviceOfferingService.patch(1L, Map.of("unknown", "value")));
 
+        assertEquals("Unsupported service offering field: unknown", exception.getMessage());
         verify(serviceOfferingRepository, never()).save(any());
     }
 

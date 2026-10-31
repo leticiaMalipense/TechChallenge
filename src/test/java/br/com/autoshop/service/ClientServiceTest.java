@@ -98,11 +98,13 @@ class ClientServiceTest {
     }
 
     @Test
-    void patchWithNoRecognizedNonNullChangesDoesNotSave() {
+    void patchWithUnknownFieldThrowsAndDoesNotSave() {
         when(clientRepository.findById(1L)).thenReturn(Optional.of(client(1L)));
 
-        assertDoesNotThrow(() -> clientService.patch(1L, Map.of("unknown", "value")));
+        RequestInvalidException exception = assertThrows(RequestInvalidException.class,
+                () -> clientService.patch(1L, Map.of("unknown", "value")));
 
+        assertEquals("Unsupported client field: unknown", exception.getMessage());
         verify(clientRepository, never()).save(any());
     }
 

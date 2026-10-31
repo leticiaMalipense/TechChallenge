@@ -90,6 +90,7 @@ public class ClientService {
                             client.setPhone(converted);
                             isDifferent.set(true);
                         }
+                        default -> throw new RequestInvalidException("Unsupported client field: " + key);
                     }
                 }
             });

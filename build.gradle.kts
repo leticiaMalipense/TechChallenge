@@ -5,6 +5,9 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("org.sonarqube") version "7.5.0.8588"
     id("io.github.f-cramer.jasperreports") version "0.0.4"
+
+    id("org.owasp.dependencycheck") version "13.0.0"
+
     kotlin("jvm")
     kotlin("plugin.jpa") version "2.4.10"
     kotlin("plugin.lombok") version "2.4.10"
@@ -22,8 +25,8 @@ java {
 
 sonar {
     properties {
-        property("sonar.projectKey", "TechChallenge")
-        property("sonar.projectName", "TechChallenge")
+        property("sonar.projectKey", "TechChallenge-Authoshop")
+        property("sonar.projectName", "TechChallenge-Authoshop")
     }
 }
 
@@ -61,6 +64,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

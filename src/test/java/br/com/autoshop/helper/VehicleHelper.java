@@ -1,4 +1,4 @@
-package br.com.autoshop.Helper;
+package br.com.autoshop.helper;
 
 import br.com.autoshop.controller.dto.VehicleDTO;
 import br.com.autoshop.repository.model.VehicleEntity;
