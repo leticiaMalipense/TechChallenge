@@ -93,6 +93,13 @@ tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.jacocoTestReport)
     violationRules {
         rule {
+            element = "BUNDLE"
+            limit {
+                counter = "LINE"
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+        rule {
             element = "CLASS"
             includes = listOf(
                 "br.com.autoshop.controller.ServiceOfferingController",
