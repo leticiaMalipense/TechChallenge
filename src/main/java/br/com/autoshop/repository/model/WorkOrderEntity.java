@@ -46,7 +46,9 @@ public class WorkOrderEntity {
     )
     private List<ServiceOfferingEntity> services = new ArrayList<>();
 
-    // TODO: Adicionar peças e insumos quando a respectiva entidade for criada
+    @Builder.Default
+    @OneToMany(mappedBy = "workOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorkOrderPartEntity> parts = new ArrayList<>();
 
     @Builder.Default
     @Column(nullable = false)
