@@ -1,5 +1,7 @@
 package br.com.autoshop.controller;
 
+import br.com.autoshop.controller.dto.WorkOrderPartDTO;
+import br.com.autoshop.controller.dto.WorkOrderPartRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
@@ -18,6 +20,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,6 +78,22 @@ class WorkOrderControllerTest {
         UUID missingId = UUID.randomUUID();
         when(workOrderService.getById(missingId)).thenReturn(null);
         assertEquals(HttpStatus.NOT_FOUND, workOrderController.getById(missingId).getStatusCode());
+    }
+
+    @Test
+    void addPartsDelegatesToServiceAndReturnsOk() {
+        UUID id = UUID.randomUUID();
+        List<WorkOrderPartRequestDTO> items = List.of(new WorkOrderPartRequestDTO(7L, new BigDecimal("2")));
+        WorkOrderResponseDTO expected = WorkOrderResponseDTO.builder()
+                .id(id)
+                .parts(List.of(WorkOrderPartDTO.builder().partId(7L).quantity(new BigDecimal("2")).build()))
+                .build();
+        when(workOrderService.addParts(id, items)).thenReturn(expected);
+
+        var response = workOrderController.addParts(id, items);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertSame(expected, response.getBody());
     }
 
     @Test
