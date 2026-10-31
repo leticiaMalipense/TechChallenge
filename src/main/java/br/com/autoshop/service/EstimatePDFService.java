@@ -2,14 +2,18 @@ package br.com.autoshop.service;
 
 
 import br.com.autoshop.controller.dto.ServiceOfferingDTO;
+import br.com.autoshop.controller.dto.WorkOrderPartDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +44,24 @@ public class EstimatePDFService {
                 ? "Not provided" : ordem.getStatus().toString());
         parameters.put("TOTAL", Objects.requireNonNullElse(ordem.getTotalEstimate(), 0.0));
 
-        List<ServiceOfferingDTO> services = ordem.getServices() == null
-                ? List.of()
-                : ordem.getServices().stream()
-                .filter(Objects::nonNull)
-                .map(this::normalizeService)
-                .toList();
+        // Linhas unificadas (serviços + peças) com os campos name/description/baseCost esperados pelo template.
+        List<Map<String, ?>> lines = new ArrayList<>();
+        if (ordem.getServices() != null) {
+            ordem.getServices().stream()
+                    .filter(Objects::nonNull)
+                    .map(this::normalizeService)
+                    .forEach(s -> lines.add(Map.of(
+                            "name", s.getName(),
+                            "description", s.getDescription(),
+                            "baseCost", s.getBaseCost())));
+        }
+        if (ordem.getParts() != null) {
+            ordem.getParts().stream()
+                    .filter(Objects::nonNull)
+                    .forEach(p -> lines.add(partLine(p)));
+        }
         JasperPrint filledReport = JasperFillManager.fillReport(
-                report, parameters, new JRBeanCollectionDataSource(services));
+                report, parameters, new JRMapCollectionDataSource(lines));
 
 
         return JasperExportManager.exportReportToPdf(filledReport);
@@ -58,6 +72,17 @@ public class EstimatePDFService {
         String model = textOrDefault(workOrder.getVehicleModel());
         String year = workOrder.getVehicleYear() == null ? "Not provided" : workOrder.getVehicleYear().toString();
         return brand + " " + model + " (" + year + ")";
+    }
+
+    private Map<String, Object> partLine(WorkOrderPartDTO part) {
+        BigDecimal quantity = Objects.requireNonNullElse(part.getQuantity(), BigDecimal.ZERO);
+        BigDecimal unitPrice = Objects.requireNonNullElse(part.getUnitPrice(), BigDecimal.ZERO);
+        String unit = part.getUnit() == null ? "" : " " + part.getUnit();
+        return Map.of(
+                "name", textOrDefault(part.getName()),
+                "description", quantity.stripTrailingZeros().toPlainString() + unit
+                        + " x " + unitPrice.setScale(2, RoundingMode.HALF_UP).toPlainString(),
+                "baseCost", quantity.multiply(unitPrice).doubleValue());
     }
 
     private ServiceOfferingDTO normalizeService(ServiceOfferingDTO service) {
