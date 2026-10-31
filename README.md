@@ -61,8 +61,7 @@ O Compose aguarda a verificação de saúde do banco antes de iniciar a aplicaç
 
 ## Acesso à API e autenticação
 
-- Swagger
-  UI: [http://localhost:8080/autoshop/swagger-ui/index.html](http://localhost:8080/autoshop/swagger-ui/index.html)
+- Swagger UI: [http://localhost:8080/autoshop/swagger-ui/index.html#/](http://localhost:8080/autoshop/swagger-ui/index.html#/)
 - Especificação OpenAPI: [http://localhost:8080/autoshop/v3/api-docs](http://localhost:8080/autoshop/v3/api-docs)
 
 As rotas protegidas usam **Bearer JWT**. Para obter um token, envie as credenciais do usuário no endpoint

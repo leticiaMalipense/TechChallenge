@@ -4,8 +4,8 @@ import br.com.autoshop.controller.dto.WorkOrderEmailDeliveryDTO;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
-import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.exception.QuoteDeliveryException;
+import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.WorkOrderService;
 import br.com.autoshop.util.WorkOrderStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +35,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/work-orders")
 @Tag(name = "Work Order", description = "Gerenciamento completo do ciclo de vida das Ordens de Serviço (OS), desde a recepção do veículo até a entrega e acompanhamento pelo cliente.")
-@PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
+
 public class WorkOrderController {
 
     private final WorkOrderService workOrderService;
@@ -54,6 +54,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "201", description = "Ordem de Serviço criada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Cliente não encontrado, dados de novo veículo ausentes ou serviço inválido")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PostMapping
     public ResponseEntity<WorkOrderResponseDTO> create(@Valid @RequestBody WorkOrderRequestDTO dto) {
         WorkOrderResponseDTO created = workOrderService.create(dto);
@@ -77,6 +78,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "200", description = "Ordem de Serviço encontrada"),
             @ApiResponse(responseCode = "404", description = "Ordem de Serviço não encontrada")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @GetMapping("/{id}")
     public ResponseEntity<WorkOrderResponseDTO> getById(@PathVariable UUID id) {
         WorkOrderResponseDTO workOrder = workOrderService.getById(id);
@@ -94,6 +96,7 @@ public class WorkOrderController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista de Ordens de Serviço do cliente retornada com sucesso")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @GetMapping("/client/{document}")
     public ResponseEntity<List<WorkOrderResponseDTO>> getByClientDocument(@PathVariable String document) {
         List<WorkOrderResponseDTO> workOrders = workOrderService.getByClientDocument(document);
@@ -108,6 +111,7 @@ public class WorkOrderController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de Ordens de Serviço retornada com sucesso")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @GetMapping
     public ResponseEntity<Page<WorkOrderResponseDTO>> getAll(
             @RequestParam(defaultValue = "0") int page,
@@ -127,6 +131,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "200", description = "Serviços adicionados e orçamento recalculado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Ordem de Serviço em status que não permite edição ou serviço inexistente/inativo")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PostMapping("/{id}/services")
     public ResponseEntity<WorkOrderResponseDTO> addServices(
             @PathVariable UUID id,
@@ -144,6 +149,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "200", description = "Status atualizado para IN_DIAGNOSIS"),
             @ApiResponse(responseCode = "400", description = "Transição de status inválida para o estado atual da OS")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PatchMapping("/{id}/start-diagnosis")
     public ResponseEntity<WorkOrderResponseDTO> startDiagnosis(@PathVariable UUID id) {
         return ResponseEntity.ok(workOrderService.startDiagnosis(id));
@@ -159,6 +165,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "400", description = "Transição inválida ou nenhum serviço vinculado para compor o orçamento"),
             @ApiResponse(responseCode = "502", description = "Falha no envio do e-mail; OS permanece aguardando aprovação")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PatchMapping("/{id}/send-for-approval")
     public ResponseEntity<WorkOrderResponseDTO> sendForApproval(@PathVariable UUID id) {
         return ResponseEntity.ok(workOrderService.sendForApproval(id));
@@ -174,6 +181,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "400", description = "OS não está aguardando aprovação"),
             @ApiResponse(responseCode = "502", description = "Falha no envio do e-mail; OS permanece aguardando aprovação")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PostMapping("/{id}/estimate-email/resend")
     public ResponseEntity<WorkOrderResponseDTO> resendEstimateEmail(@PathVariable UUID id) {
         return ResponseEntity.ok(workOrderService.resendEstimateEmail(id));
@@ -190,6 +198,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "400", description = "Ordem de Serviço não encontrada"),
             @ApiResponse(responseCode = "404", description = "Nenhuma tentativa de envio encontrada para a OS")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @GetMapping("/{id}/estimate-email/latest")
     public ResponseEntity<WorkOrderEmailDeliveryDTO> getLatestEmailDelivery(@PathVariable UUID id) {
         WorkOrderEmailDeliveryDTO delivery = workOrderService.getLatestEmailDelivery(id);
@@ -205,6 +214,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "200", description = "Orçamento aprovado e OS em execução (IN_EXECUTION)"),
             @ApiResponse(responseCode = "400", description = "A Ordem de Serviço não está no status AWAITING_APPROVAL")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PatchMapping("/{id}/approve")
     public ResponseEntity<WorkOrderResponseDTO> approve(@PathVariable UUID id) {
         return ResponseEntity.ok(workOrderService.approve(id));
@@ -219,6 +229,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "200", description = "Serviços concluídos e status alterado para FINISHED"),
             @ApiResponse(responseCode = "400", description = "A Ordem de Serviço não está no status IN_EXECUTION")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PatchMapping("/{id}/finish")
     public ResponseEntity<WorkOrderResponseDTO> finish(@PathVariable UUID id) {
         return ResponseEntity.ok(workOrderService.finish(id));
@@ -233,6 +244,7 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "200", description = "Veículo entregue e status alterado para DELIVERED"),
             @ApiResponse(responseCode = "400", description = "A Ordem de Serviço não está no status FINISHED")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'Mechanic')")
     @PatchMapping("/{id}/deliver")
     public ResponseEntity<WorkOrderResponseDTO> deliver(@PathVariable UUID id) {
         return ResponseEntity.ok(workOrderService.deliver(id));
@@ -250,7 +262,6 @@ public class WorkOrderController {
             @ApiResponse(responseCode = "400", description = "Prefixo do documento inválido/divergente, OS não encontrada ou ainda não aprovada")
     })
     @GetMapping("/{id}/tracking")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<WorkOrderTrackingDTO> trackWorkOrder(
             @PathVariable UUID id,
             @RequestParam String documentPrefix

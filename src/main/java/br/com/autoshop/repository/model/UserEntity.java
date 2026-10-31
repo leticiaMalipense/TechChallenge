@@ -24,7 +24,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @SequenceGenerator(
             sequenceName = "users_id_seq",
-            initialValue = 1,
+            initialValue = 2,
             allocationSize = 1)
     @Column(nullable = false)
     private Long id;
