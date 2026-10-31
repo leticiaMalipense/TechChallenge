@@ -24,7 +24,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
-@SecurityRequirement
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/vehicle")
 @Tag(name = "Vehicle", description = "Gerenciamento do cadastro de veículos atendidos pela oficina, incluindo identificação por placa, marca, modelo, ano e histórico de última revisão.")

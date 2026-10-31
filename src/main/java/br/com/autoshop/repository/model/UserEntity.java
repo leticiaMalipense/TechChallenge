@@ -36,7 +36,7 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(insertable = false, updatable = false)
+    @Column
     @Enumerated(EnumType.STRING)
     private RoleType role;
 

@@ -34,7 +34,7 @@ public class JwtService {
 
     public TokenResponseDTO generateToken(Authentication authentication) {
         Instant now = Instant.now();
-        long expiry = 3600L;
+        long expiry = 600L;
 
         String scopes = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -48,7 +48,8 @@ public class JwtService {
                 .claim(SCOPE, scopes)
                 .build();
 
-        var encoderParameters = JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims);
+        var encoderParameters = JwtEncoderParameters.from(
+                JwsHeader.with(MacAlgorithm.HS256).type("JWT").build(), claims);
         String token = this.jwtEncoder.encode(encoderParameters).getTokenValue();
         return new TokenResponseDTO(token, now.plusSeconds(expiry));
 

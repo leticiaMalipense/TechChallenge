@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-@SecurityRequirement
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/work-orders")
 @Tag(name = "Work Order", description = "Gerenciamento completo do ciclo de vida das Ordens de Serviço (OS), desde a recepção do veículo até a entrega e acompanhamento pelo cliente.")
@@ -164,7 +164,11 @@ public class WorkOrderController {
         return ResponseEntity.ok(workOrderService.sendForApproval(id));
     }
 
-    @Operation(summary = "Reenviar orçamento por e-mail")
+    @Operation(
+            summary = "Reenviar orçamento por e-mail",
+            description = "Gera novamente o link de aprovação e reenvia o orçamento em PDF ao e-mail cadastrado do cliente. " +
+                    "Só pode ser usado enquanto a OS estiver aguardando aprovação; o link anterior é revogado e um novo token é emitido."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Orçamento reenviado com sucesso"),
             @ApiResponse(responseCode = "400", description = "OS não está aguardando aprovação"),
@@ -175,7 +179,17 @@ public class WorkOrderController {
         return ResponseEntity.ok(workOrderService.resendEstimateEmail(id));
     }
 
-    @Operation(summary = "Consultar o estado do último envio do orçamento")
+    @Operation(
+            summary = "Consultar o estado do último envio do orçamento",
+            description = "Retorna o registro da tentativa mais recente de envio do orçamento, incluindo estado, número da tentativa, " +
+                    "datas e eventual mensagem de erro. Retorna 404 quando a OS existe, mas ainda não possui tentativa de envio; " +
+                    "uma OS inexistente retorna 400."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Estado da tentativa mais recente retornado"),
+            @ApiResponse(responseCode = "400", description = "Ordem de Serviço não encontrada"),
+            @ApiResponse(responseCode = "404", description = "Nenhuma tentativa de envio encontrada para a OS")
+    })
     @GetMapping("/{id}/estimate-email/latest")
     public ResponseEntity<WorkOrderEmailDeliveryDTO> getLatestEmailDelivery(@PathVariable UUID id) {
         WorkOrderEmailDeliveryDTO delivery = workOrderService.getLatestEmailDelivery(id);
@@ -228,7 +242,8 @@ public class WorkOrderController {
             summary = "Acompanhar progresso da Ordem de Serviço pelo cliente (Tracking)",
             description = "Permite que o cliente consulte o andamento da sua Ordem de Serviço após a aprovação do orçamento. " +
                     "Existe para oferecer transparência ao cliente sem expor dados sensíveis: utiliza UUID contra enumeração sequencial " +
-                    "e exige os 3 primeiros dígitos do documento (CPF/CNPJ) do titular da OS para autorizar a visualização."
+                    "e exige os 3 primeiros dígitos do documento (CPF/CNPJ) do titular da OS para autorizar a visualização.",
+            security = {}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Progresso da Ordem de Serviço retornado com sucesso"),

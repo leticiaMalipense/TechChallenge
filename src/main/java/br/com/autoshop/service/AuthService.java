@@ -4,6 +4,7 @@ import br.com.autoshop.controller.dto.TokenResponseDTO;
 import br.com.autoshop.controller.dto.UserDTO;
 import br.com.autoshop.repository.UserRepository;
 import br.com.autoshop.repository.model.UserEntity;
+import br.com.autoshop.util.RoleType;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -50,7 +51,10 @@ public class AuthService {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         UserEntity userEntity = UserEntity.builder()
                 .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword())).build();
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .role(RoleType.Client)
+                .active(Boolean.TRUE)
+                .build();
         userRepository.save(userEntity);
     }
 }

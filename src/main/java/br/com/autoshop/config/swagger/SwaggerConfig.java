@@ -13,20 +13,27 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "basicAuth";
+        final String bearerSchemeName = "bearerAuth";
+        final String basicSchemeName = "basicAuth";
 
         return new OpenAPI()
                 .info(new Info()
                         .title("Autoshop API")
                         .version("1.0.0")
-                        .description("Doc protected by Basic Authentication"))
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                        .description("Protected endpoints use a JWT bearer token. Use Basic Auth only to obtain a token at /auth."))
+                .addSecurityItem(new SecurityRequirement().addList(bearerSchemeName))
                 .components(new Components()
-                        .addSecuritySchemes(securitySchemeName,
+                        .addSecuritySchemes(basicSchemeName,
                                 new SecurityScheme()
-                                        .name(securitySchemeName)
+                                        .name(basicSchemeName)
                                         .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")));
+                                        .scheme("basic"))
+                        .addSecuritySchemes(bearerSchemeName,
+                                new SecurityScheme()
+                                        .name(bearerSchemeName)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
 
 }

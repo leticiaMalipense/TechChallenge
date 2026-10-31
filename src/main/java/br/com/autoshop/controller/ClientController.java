@@ -3,6 +3,7 @@ package br.com.autoshop.controller;
 import br.com.autoshop.controller.dto.ClientDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.service.ClientService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,7 +22,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
-@SecurityRequirement
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/client")
 @Tag(name = "Client")
@@ -34,6 +35,7 @@ public class ClientController {
         this.clientService = clientService;
     }
 
+    @Operation(summary = "Cadastrar cliente", description = "Cadastra um cliente com nome, CPF ou CNPJ, e-mail e telefone opcional. Retorna o endereço do recurso criado.")
     @PostMapping
     public ResponseEntity<Void> postClient(@Valid @RequestBody ClientDTO dto) {
         if (clientService.isClientExistByDocumentOrEmail(dto.getDocument(), dto.getEmail())) {
@@ -52,6 +54,7 @@ public class ClientController {
                 .toUri();
     }
 
+    @Operation(summary = "Consultar cliente por ID", description = "Busca os dados cadastrais de um cliente pelo identificador. Retorna 404 quando não encontrado.")
     @GetMapping("/{id}")
     public ResponseEntity<ClientDTO> getClient(@PathVariable Long id) {
         ClientDTO client = clientService.getById(id);
@@ -61,6 +64,7 @@ public class ClientController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "Listar clientes", description = "Retorna uma página de clientes. Permite informar página, tamanho e campo de ordenação.")
     @GetMapping
     public ResponseEntity<Page<ClientDTO>> getAll(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size,
@@ -71,6 +75,7 @@ public class ClientController {
         return ResponseEntity.ok(clients);
     }
 
+    @Operation(summary = "Substituir dados do cliente", description = "Atualiza os dados cadastrais do cliente pelo ID usando os campos enviados no corpo da requisição.")
     @PutMapping("/{id}")
     public ResponseEntity<ClientDTO> put(@PathVariable Long id, @Valid @RequestBody ClientDTO dto) {
         if (Objects.isNull(clientService.getById(id))) {
@@ -81,6 +86,7 @@ public class ClientController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Atualizar parcialmente cliente", description = "Atualiza os campos enviados para o cliente. Campos aceitos: name, document, email e phone.")
     @PatchMapping("/{id}")
     @ExceptionHandler(RequestInvalidException.class)
     public ResponseEntity<ClientDTO> patch(@PathVariable Long id, @RequestBody Map<String, Object> fields) {
@@ -92,6 +98,7 @@ public class ClientController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Desativar cliente", description = "Desativa o cadastro do cliente pelo ID. O cadastro não é removido fisicamente.")
     @DeleteMapping("/{id}")
     public ResponseEntity<ClientDTO> deleteClient(@PathVariable Long id) {
         if (clientService.isClientExistById(id)) {
