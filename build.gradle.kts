@@ -96,7 +96,9 @@ tasks.jacocoTestCoverageVerification {
             element = "CLASS"
             includes = listOf(
                 "br.com.autoshop.controller.ServiceOfferingController",
-                "br.com.autoshop.service.ServiceOfferingService"
+                "br.com.autoshop.service.ServiceOfferingService",
+                "br.com.autoshop.controller.PartController",
+                "br.com.autoshop.service.PartService"
             )
             limit {
                 counter = "LINE"
