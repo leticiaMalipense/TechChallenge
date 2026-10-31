@@ -1,6 +1,7 @@
 package br.com.autoshop.controller.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,6 @@ public class UserDTO {
     @NotBlank(message = "Password cannot be empty")
     private String password;
 
-    @NotBlank(message = "Password cannot be empty")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String role;
 }

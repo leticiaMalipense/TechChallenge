@@ -16,11 +16,13 @@ public class UserAuthenticated implements UserDetails {
     private final String email;
     private final String password;
     private final String role;
+    private final boolean enabled;
 
     public UserAuthenticated(br.com.autoshop.repository.model.UserEntity user) {
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.role = user.getRole() == null ? null : user.getRole().name();
+        this.enabled = Boolean.TRUE.equals(user.getActive());
     }
 
     @Override
@@ -37,6 +39,11 @@ public class UserAuthenticated implements UserDetails {
     @Override
     public @NonNull String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 
 }
