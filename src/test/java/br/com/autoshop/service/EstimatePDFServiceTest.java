@@ -2,11 +2,14 @@ package br.com.autoshop.service;
 
 import br.com.autoshop.controller.dto.ServiceOfferingDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
+import br.com.autoshop.controller.dto.WorkOrderPartDTO;
+import br.com.autoshop.util.PartUnit;
 import br.com.autoshop.util.WorkOrderStatus;
 import net.sf.jasperreports.engine.JRException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +45,28 @@ class EstimatePDFServiceTest {
 
         assertNotNull(pdf);
         assertTrue(pdf.length > 0);
+        assertTrue(new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII)
+                .startsWith("%PDF-"));
+    }
+
+    @Test
+    void generatePdfIncludesPartLines() throws IOException, JRException {
+        WorkOrderResponseDTO workOrder = WorkOrderResponseDTO.builder()
+                .id(UUID.randomUUID())
+                .status(WorkOrderStatus.AWAITING_APPROVAL)
+                .totalEstimate(151.0)
+                .parts(List.of(WorkOrderPartDTO.builder()
+                        .partId(7L)
+                        .name("Brake pad")
+                        .unit(PartUnit.UNIT)
+                        .quantity(new BigDecimal("2"))
+                        .unitPrice(new BigDecimal("75.50"))
+                        .subtotal(new BigDecimal("151.00"))
+                        .build()))
+                .build();
+
+        byte[] pdf = service.generatePdf(workOrder);
+
         assertTrue(new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII)
                 .startsWith("%PDF-"));
     }

@@ -1,19 +1,26 @@
 package br.com.autoshop.service;
 
+import br.com.autoshop.controller.dto.PartDTO;
+import br.com.autoshop.controller.dto.WorkOrderPartRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.exception.QuoteDeliveryException;
 import br.com.autoshop.repository.ClientRepository;
+import br.com.autoshop.repository.PartRepository;
 import br.com.autoshop.repository.ServiceOfferingRepository;
 import br.com.autoshop.repository.VehicleRepository;
 import br.com.autoshop.repository.WorkOrderRepository;
 import br.com.autoshop.repository.model.ClientEntity;
+import br.com.autoshop.repository.model.PartEntity;
 import br.com.autoshop.repository.model.ServiceOfferingEntity;
 import br.com.autoshop.repository.model.VehicleEntity;
 import br.com.autoshop.repository.model.WorkOrderEntity;
+import br.com.autoshop.repository.model.WorkOrderPartEntity;
 import br.com.autoshop.util.DocumentType;
+import br.com.autoshop.util.PartType;
+import br.com.autoshop.util.PartUnit;
 import br.com.autoshop.util.WorkOrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,8 +56,15 @@ class WorkOrderServiceTest {
     @Mock
     private WorkOrderQuoteDeliveryService quoteDeliveryService;
 
+    @Mock
+    private PartRepository partRepository;
+
+    @Mock
+    private PartService partService;
+
     private WorkOrderService workOrderService;
 
+    private PartEntity brakePad;
     private ClientEntity defaultClient;
     private VehicleEntity defaultVehicle;
     private ServiceOfferingEntity oilChangeService;
@@ -62,8 +77,21 @@ class WorkOrderServiceTest {
                 clientRepository,
                 vehicleRepository,
                 serviceOfferingRepository,
-                quoteDeliveryService
+                quoteDeliveryService,
+                partRepository,
+                partService
         );
+
+        brakePad = PartEntity.builder()
+                .id(7L)
+                .name("Pastilha de freio")
+                .code("PF-001")
+                .partType(PartType.PART)
+                .unit(PartUnit.UNIT)
+                .costPrice(new BigDecimal("40.00"))
+                .salePrice(new BigDecimal("75.50"))
+                .stockQuantity(new BigDecimal("10"))
+                .build();
 
         defaultClient = ClientEntity.builder()
                 .id(1L)
@@ -316,5 +344,169 @@ class WorkOrderServiceTest {
         RequestInvalidException ex = assertThrows(RequestInvalidException.class,
                 () -> workOrderService.trackWorkOrder(id, "123"));
         assertEquals(WorkOrderService.WORK_ORDER_NOT_APPROVED_YET, ex.getMessage());
+    }
+
+    private WorkOrderEntity workOrderIn(UUID id, WorkOrderStatus status) {
+        return WorkOrderEntity.builder()
+                .id(id)
+                .client(defaultClient)
+                .vehicle(defaultVehicle)
+                .status(status)
+                .services(new ArrayList<>(List.of(oilChangeService)))
+                .build();
+    }
+
+    private WorkOrderPartEntity partLine(WorkOrderEntity workOrder, String quantity) {
+        return WorkOrderPartEntity.builder()
+                .workOrder(workOrder)
+                .part(brakePad)
+                .quantity(new BigDecimal(quantity))
+                .unitPrice(brakePad.getSalePrice())
+                .build();
+    }
+
+    @Test
+    void addPartsSnapshotsPriceAddsToEstimateAndMovesToDiagnosis() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = workOrderIn(id, WorkOrderStatus.RECEIVED);
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(partRepository.getByIdAndActiveIsTrue(7L)).thenReturn(Optional.of(brakePad));
+        when(workOrderRepository.save(any(WorkOrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        WorkOrderResponseDTO response = workOrderService.addParts(id,
+                List.of(new WorkOrderPartRequestDTO(7L, new BigDecimal("2"))));
+
+        assertEquals(WorkOrderStatus.IN_DIAGNOSIS, response.getStatus());
+        assertEquals(180.0 + 151.0, response.getTotalEstimate());
+        assertEquals(1, response.getParts().size());
+        assertEquals(new BigDecimal("75.50"), response.getParts().get(0).getUnitPrice());
+        assertEquals(new BigDecimal("151.00"), response.getParts().get(0).getSubtotal());
+        verify(partService, never()).removeStock(any(), any());
+    }
+
+    @Test
+    void addPartsSumsQuantityWhenPartIsAlreadyOnWorkOrder() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = workOrderIn(id, WorkOrderStatus.IN_DIAGNOSIS);
+        entity.getParts().add(partLine(entity, "1"));
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(partRepository.getByIdAndActiveIsTrue(7L)).thenReturn(Optional.of(brakePad));
+        when(workOrderRepository.save(any(WorkOrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        WorkOrderResponseDTO response = workOrderService.addParts(id,
+                List.of(new WorkOrderPartRequestDTO(7L, new BigDecimal("3"))));
+
+        assertEquals(1, response.getParts().size());
+        assertEquals(new BigDecimal("4"), response.getParts().get(0).getQuantity());
+    }
+
+    @Test
+    void addPartsThrowsWhenPartIsMissingOrInactive() {
+        UUID id = UUID.randomUUID();
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(workOrderIn(id, WorkOrderStatus.RECEIVED)));
+        when(partRepository.getByIdAndActiveIsTrue(99L)).thenReturn(Optional.empty());
+
+        RequestInvalidException ex = assertThrows(RequestInvalidException.class,
+                () -> workOrderService.addParts(id, List.of(new WorkOrderPartRequestDTO(99L, BigDecimal.ONE))));
+        assertEquals(WorkOrderService.PART_NOT_FOUND + 99L, ex.getMessage());
+        verify(workOrderRepository, never()).save(any());
+    }
+
+    @Test
+    void addPartsThrowsWhenStatusDoesNotAllowEditing() {
+        UUID id = UUID.randomUUID();
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(workOrderIn(id, WorkOrderStatus.AWAITING_APPROVAL)));
+
+        assertThrows(RequestInvalidException.class,
+                () -> workOrderService.addParts(id, List.of(new WorkOrderPartRequestDTO(7L, BigDecimal.ONE))));
+        verify(workOrderRepository, never()).save(any());
+    }
+
+    @Test
+    void addPartsThrowsWhenListIsEmpty() {
+        UUID id = UUID.randomUUID();
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(workOrderIn(id, WorkOrderStatus.RECEIVED)));
+
+        RequestInvalidException ex = assertThrows(RequestInvalidException.class,
+                () -> workOrderService.addParts(id, List.of()));
+        assertEquals(WorkOrderService.PARTS_REQUIRED, ex.getMessage());
+    }
+
+    @Test
+    void calculateEstimateSumsServicesAndParts() {
+        WorkOrderEntity entity = workOrderIn(UUID.randomUUID(), WorkOrderStatus.IN_DIAGNOSIS);
+        entity.getParts().add(partLine(entity, "2.5"));
+
+        assertEquals(180.0 + 188.75, workOrderService.calculateEstimate(entity), 0.001);
+    }
+
+    @Test
+    void sendForApprovalAcceptsWorkOrderWithOnlyParts() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = workOrderIn(id, WorkOrderStatus.IN_DIAGNOSIS);
+        entity.getServices().clear();
+        entity.getParts().add(partLine(entity, "1"));
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(workOrderRepository.save(any(WorkOrderEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        WorkOrderResponseDTO response = workOrderService.sendForApproval(id);
+
+        assertEquals(WorkOrderStatus.AWAITING_APPROVAL, response.getStatus());
+        assertEquals(75.5, response.getTotalEstimate());
+    }
+
+    @Test
+    void sendForApprovalThrowsWithoutServicesAndParts() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = workOrderIn(id, WorkOrderStatus.IN_DIAGNOSIS);
+        entity.getServices().clear();
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+
+        RequestInvalidException ex = assertThrows(RequestInvalidException.class,
+                () -> workOrderService.sendForApproval(id));
+        assertEquals(WorkOrderService.SERVICES_REQUIRED_FOR_APPROVAL, ex.getMessage());
+    }
+
+    @Test
+    void approveRemovesStockForEachPart() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = workOrderIn(id, WorkOrderStatus.AWAITING_APPROVAL);
+        entity.getParts().add(partLine(entity, "2"));
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(workOrderRepository.transitionStatus(eq(id), any(), any(), any())).thenReturn(1);
+        when(partService.removeStock(7L, new BigDecimal("2"))).thenReturn(PartDTO.builder().build());
+
+        WorkOrderResponseDTO response = workOrderService.approve(id);
+
+        assertEquals(WorkOrderStatus.IN_EXECUTION, response.getStatus());
+        verify(partService).removeStock(7L, new BigDecimal("2"));
+    }
+
+    @Test
+    void approvePropagatesInsufficientStockAndSkipsTokenRevocation() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = workOrderIn(id, WorkOrderStatus.AWAITING_APPROVAL);
+        entity.getParts().add(partLine(entity, "50"));
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(workOrderRepository.transitionStatus(eq(id), any(), any(), any())).thenReturn(1);
+        when(partService.removeStock(7L, new BigDecimal("50")))
+                .thenThrow(new RequestInvalidException("Insufficient stock"));
+
+        assertThrows(RequestInvalidException.class, () -> workOrderService.approve(id));
+        verify(quoteDeliveryService, never()).revokeApprovalTokens(any());
+    }
+
+    @Test
+    void approveThrowsWhenPartWasDeactivatedBeforeApproval() {
+        UUID id = UUID.randomUUID();
+        WorkOrderEntity entity = workOrderIn(id, WorkOrderStatus.AWAITING_APPROVAL);
+        entity.getParts().add(partLine(entity, "1"));
+        when(workOrderRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(workOrderRepository.transitionStatus(eq(id), any(), any(), any())).thenReturn(1);
+        when(partService.removeStock(7L, BigDecimal.ONE)).thenReturn(null);
+
+        RequestInvalidException ex = assertThrows(RequestInvalidException.class,
+                () -> workOrderService.approve(id));
+        assertEquals(WorkOrderService.PART_NOT_FOUND + 7L, ex.getMessage());
     }
 }

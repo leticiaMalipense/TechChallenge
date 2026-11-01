@@ -36,7 +36,8 @@ public class WorkOrderResponseDTO {
     @Builder.Default
     private List<ServiceOfferingDTO> services = new ArrayList<>();
 
-    // TODO: Incluir lista de peças e insumos quando a entidade for criada
+    @Builder.Default
+    private List<WorkOrderPartDTO> parts = new ArrayList<>();
 
     private Double totalEstimate;
 

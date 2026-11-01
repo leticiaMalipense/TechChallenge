@@ -26,7 +26,7 @@
             <textField><reportElement x="85" y="91" width="430" height="18"/><textFieldExpression><![CDATA[$P{VEICULO} + "  |  Placa: " + $P{PLACA}]]></textFieldExpression></textField>
             <staticText><reportElement x="0" y="115" width="85" height="18"/><textElement><font isBold="true"/></textElement><text><![CDATA[Status:]]></text></staticText>
             <textField><reportElement x="85" y="115" width="430" height="18"/><textFieldExpression><![CDATA[$P{STATUS}]]></textFieldExpression></textField>
-            <staticText><reportElement mode="Opaque" x="0" y="151" width="310" height="25" backcolor="#EAF0F5"/><textElement verticalAlignment="Middle"><font isBold="true"/></textElement><text><![CDATA[Serviço]]></text></staticText>
+            <staticText><reportElement mode="Opaque" x="0" y="151" width="310" height="25" backcolor="#EAF0F5"/><textElement verticalAlignment="Middle"><font isBold="true"/></textElement><text><![CDATA[Serviço / Peça]]></text></staticText>
             <staticText><reportElement mode="Opaque" x="310" y="151" width="205" height="25" backcolor="#EAF0F5"/><textElement textAlignment="Right" verticalAlignment="Middle"><font isBold="true"/></textElement><text><![CDATA[Valor]]></text></staticText>
         </band>
     </title>

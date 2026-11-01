@@ -1,6 +1,7 @@
 package br.com.autoshop.controller;
 
 import br.com.autoshop.controller.dto.WorkOrderEmailDeliveryDTO;
+import br.com.autoshop.controller.dto.WorkOrderPartRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
@@ -141,6 +142,23 @@ public class WorkOrderController {
     }
 
     @Operation(
+            summary = "Adicionar peças e insumos à Ordem de Serviço",
+            description = "Inclui peças/insumos ativos do estoque (partId + quantity) na Ordem de Serviço, avança o status para EM DIAGNÓSTICO (IN_DIAGNOSIS) " +
+                    "e recalcula o orçamento total. O preço unitário é congelado no momento da inclusão e o estoque só é baixado na aprovação do orçamento."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Peças adicionadas e orçamento recalculado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Status que não permite edição, peça inexistente/inativa ou quantidade inválida")
+    })
+    @PostMapping("/{id}/parts")
+    public ResponseEntity<WorkOrderResponseDTO> addParts(
+            @PathVariable UUID id,
+            @RequestBody List<@Valid WorkOrderPartRequestDTO> items
+    ) {
+        return ResponseEntity.ok(workOrderService.addParts(id, items));
+    }
+
+    @Operation(
             summary = "Iniciar diagnóstico técnico da Ordem de Serviço",
             description = "Transiciona automaticamente o status da Ordem de Serviço de RECEBIDA (RECEIVED) para EM DIAGNÓSTICO (IN_DIAGNOSIS). " +
                     "Existe para registrar o momento exato em que o veículo deixa a fila de recepção e passa a ser inspecionado pela equipe técnica."
@@ -157,7 +175,7 @@ public class WorkOrderController {
 
     @Operation(
             summary = "Fechar diagnóstico e enviar orçamento para aprovação do cliente",
-            description = "Consolida o valor total do orçamento (serviços e futuros insumos), altera o status de EM DIAGNÓSTICO (IN_DIAGNOSIS) para AGUARDANDO APROVAÇÃO (AWAITING_APPROVAL) " +
+            description = "Consolida o valor total do orçamento (serviços, peças e insumos), altera o status de EM DIAGNÓSTICO (IN_DIAGNOSIS) para AGUARDANDO APROVAÇÃO (AWAITING_APPROVAL) " +
                     "e dispara o fluxo de envio ao cliente. Existe para garantir que nenhuma execução mecânica seja iniciada sem que o orçamento esteja fechado e submetido ao cliente."
     )
     @ApiResponses({

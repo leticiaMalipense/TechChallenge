@@ -2,18 +2,23 @@ package br.com.autoshop.service;
 
 import br.com.autoshop.controller.dto.ServiceOfferingDTO;
 import br.com.autoshop.controller.dto.WorkOrderEmailDeliveryDTO;
+import br.com.autoshop.controller.dto.WorkOrderPartDTO;
+import br.com.autoshop.controller.dto.WorkOrderPartRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderRequestDTO;
 import br.com.autoshop.controller.dto.WorkOrderResponseDTO;
 import br.com.autoshop.controller.dto.WorkOrderTrackingDTO;
 import br.com.autoshop.exception.RequestInvalidException;
 import br.com.autoshop.repository.ClientRepository;
+import br.com.autoshop.repository.PartRepository;
 import br.com.autoshop.repository.ServiceOfferingRepository;
 import br.com.autoshop.repository.VehicleRepository;
 import br.com.autoshop.repository.WorkOrderRepository;
 import br.com.autoshop.repository.model.ClientEntity;
+import br.com.autoshop.repository.model.PartEntity;
 import br.com.autoshop.repository.model.ServiceOfferingEntity;
 import br.com.autoshop.repository.model.VehicleEntity;
 import br.com.autoshop.repository.model.WorkOrderEntity;
+import br.com.autoshop.repository.model.WorkOrderPartEntity;
 import br.com.autoshop.util.WorkOrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +36,9 @@ public class WorkOrderService {
     public static final String SERVICE_OFFERING_NOT_FOUND = "Service offering not found or inactive: ";
     public static final String WORK_ORDER_NOT_FOUND = "Work order not found";
     public static final String INVALID_STATUS_TRANSITION = "Invalid status transition from ";
-    public static final String SERVICES_REQUIRED_FOR_APPROVAL = "At least one service must be added before sending for approval";
+    public static final String SERVICES_REQUIRED_FOR_APPROVAL = "At least one service or part must be added before sending for approval";
+    public static final String PART_NOT_FOUND = "Part not found or inactive: ";
+    public static final String PARTS_REQUIRED = "At least one part must be provided";
     public static final String INVALID_DOCUMENT_PREFIX = "Invalid client document prefix (must be the first 3 digits)";
     public static final String WORK_ORDER_NOT_APPROVED_YET = "Work order tracking is only available after client approval";
 
@@ -46,19 +53,25 @@ public class WorkOrderService {
     private final VehicleRepository vehicleRepository;
     private final ServiceOfferingRepository serviceOfferingRepository;
     private final WorkOrderQuoteDeliveryService quoteDeliveryService;
+    private final PartRepository partRepository;
+    private final PartService partService;
 
     public WorkOrderService(
             WorkOrderRepository workOrderRepository,
             ClientRepository clientRepository,
             VehicleRepository vehicleRepository,
             ServiceOfferingRepository serviceOfferingRepository,
-            WorkOrderQuoteDeliveryService quoteDeliveryService
+            WorkOrderQuoteDeliveryService quoteDeliveryService,
+            PartRepository partRepository,
+            PartService partService
     ) {
         this.workOrderRepository = workOrderRepository;
         this.clientRepository = clientRepository;
         this.vehicleRepository = vehicleRepository;
         this.serviceOfferingRepository = serviceOfferingRepository;
         this.quoteDeliveryService = quoteDeliveryService;
+        this.partRepository = partRepository;
+        this.partService = partService;
     }
 
     public WorkOrderResponseDTO create(WorkOrderRequestDTO dto) {
@@ -119,7 +132,47 @@ public class WorkOrderService {
         }
         workOrder.getServices().addAll(newServices);
 
-        // TODO: Permitir também a adição de peças e insumos necessários quando a entidade for implementada
+        workOrder.setStatus(WorkOrderStatus.IN_DIAGNOSIS);
+        workOrder.setTotalEstimate(calculateEstimate(workOrder));
+        workOrder.setUpdateDate(LocalDateTime.now());
+
+        return convertToResponseDto(workOrderRepository.save(workOrder));
+    }
+
+    public WorkOrderResponseDTO addParts(UUID id, List<WorkOrderPartRequestDTO> items) {
+        WorkOrderEntity workOrder = getWorkOrderOrThrow(id);
+
+        if (workOrder.getStatus() != WorkOrderStatus.RECEIVED
+                && workOrder.getStatus() != WorkOrderStatus.IN_DIAGNOSIS) {
+            throw new RequestInvalidException(
+                    INVALID_STATUS_TRANSITION + workOrder.getStatus() + " when adding parts"
+            );
+        }
+        if (Objects.isNull(items) || items.isEmpty()) {
+            throw new RequestInvalidException(PARTS_REQUIRED);
+        }
+
+        if (workOrder.getParts() == null) {
+            workOrder.setParts(new ArrayList<>());
+        }
+        for (WorkOrderPartRequestDTO item : items) {
+            PartEntity part = partRepository.getByIdAndActiveIsTrue(item.getPartId())
+                    .orElseThrow(() -> new RequestInvalidException(PART_NOT_FOUND + item.getPartId()));
+
+            Optional<WorkOrderPartEntity> existing = workOrder.getParts().stream()
+                    .filter(wop -> Objects.equals(wop.getPart().getId(), part.getId()))
+                    .findFirst();
+            if (existing.isPresent()) {
+                existing.get().setQuantity(existing.get().getQuantity().add(item.getQuantity()));
+            } else {
+                workOrder.getParts().add(WorkOrderPartEntity.builder()
+                        .workOrder(workOrder)
+                        .part(part)
+                        .quantity(item.getQuantity())
+                        .unitPrice(part.getSalePrice())
+                        .build());
+            }
+        }
 
         workOrder.setStatus(WorkOrderStatus.IN_DIAGNOSIS);
         workOrder.setTotalEstimate(calculateEstimate(workOrder));
@@ -141,7 +194,9 @@ public class WorkOrderService {
         WorkOrderEntity workOrder = getWorkOrderOrThrow(id);
         validateTransition(workOrder, WorkOrderStatus.IN_DIAGNOSIS, WorkOrderStatus.AWAITING_APPROVAL);
 
-        if (workOrder.getServices() == null || workOrder.getServices().isEmpty()) {
+        boolean noServices = workOrder.getServices() == null || workOrder.getServices().isEmpty();
+        boolean noParts = workOrder.getParts() == null || workOrder.getParts().isEmpty();
+        if (noServices && noParts) {
             throw new RequestInvalidException(SERVICES_REQUIRED_FOR_APPROVAL);
         }
 
@@ -187,6 +242,15 @@ public class WorkOrderService {
             throw new RequestInvalidException(
                     INVALID_STATUS_TRANSITION + WorkOrderStatus.AWAITING_APPROVAL + " to " + WorkOrderStatus.IN_EXECUTION
             );
+        }
+
+        // Falha (ex.: estoque insuficiente) propaga e reverte a transição de status acima.
+        if (workOrder.getParts() != null) {
+            for (WorkOrderPartEntity item : workOrder.getParts()) {
+                if (partService.removeStock(item.getPart().getId(), item.getQuantity()) == null) {
+                    throw new RequestInvalidException(PART_NOT_FOUND + item.getPart().getId());
+                }
+            }
         }
 
         workOrder.setStatus(WorkOrderStatus.IN_EXECUTION);
@@ -254,8 +318,13 @@ public class WorkOrderService {
                     .sum();
         }
 
-        // TODO: Somar o valor das peças e insumos vinculados à WorkOrder quando a entidade for criada
         double partsAndSuppliesTotal = 0.0;
+        if (Objects.nonNull(workOrder.getParts())) {
+            partsAndSuppliesTotal = workOrder.getParts().stream()
+                    .filter(Objects::nonNull)
+                    .mapToDouble(p -> p.getUnitPrice().multiply(p.getQuantity()).doubleValue())
+                    .sum();
+        }
 
         return servicesTotal + partsAndSuppliesTotal;
     }
@@ -322,6 +391,21 @@ public class WorkOrderService {
                         .build())
                 .toList();
 
+        List<WorkOrderPartDTO> partDtos = entity.getParts() == null
+                ? List.of()
+                : entity.getParts().stream()
+                .map(p -> WorkOrderPartDTO.builder()
+                        .partId(p.getPart().getId())
+                        .name(p.getPart().getName())
+                        .code(p.getPart().getCode())
+                        .partType(p.getPart().getPartType())
+                        .unit(p.getPart().getUnit())
+                        .quantity(p.getQuantity())
+                        .unitPrice(p.getUnitPrice())
+                        .subtotal(p.getUnitPrice().multiply(p.getQuantity()))
+                        .build())
+                .toList();
+
         return WorkOrderResponseDTO.builder()
                 .id(entity.getId())
                 .clientName(entity.getClient().getName())
@@ -332,6 +416,7 @@ public class WorkOrderService {
                 .vehicleYear(entity.getVehicle().getYear())
                 .status(entity.getStatus())
                 .services(serviceDtos)
+                .parts(partDtos)
                 .totalEstimate(entity.getTotalEstimate())
                 .creationDate(entity.getCreationDate())
                 .updateDate(entity.getUpdateDate())
