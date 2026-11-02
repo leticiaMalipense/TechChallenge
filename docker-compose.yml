@@ -33,7 +33,7 @@ services:
     environment:
       POSTGRES_DB: autoshop
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 7906
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     healthcheck:
@@ -43,7 +43,7 @@ services:
       retries: 10
 
   sonarqube:
-    image: sonarqube:community
+    image: sonarqube:latest
     depends_on:
       - db-sonar
     environment:
