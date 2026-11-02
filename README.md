@@ -61,7 +61,8 @@ O Compose aguarda a verificação de saúde do banco antes de iniciar a aplicaç
 
 ## Acesso à API e autenticação
 
-- Swagger UI: [http://localhost:8080/autoshop/swagger-ui/index.html#/](http://localhost:8080/autoshop/swagger-ui/index.html#/)
+- Swagger
+  UI: [http://localhost:8080/autoshop/swagger-ui/index.html#/](http://localhost:8080/autoshop/swagger-ui/index.html#/)
 - Especificação OpenAPI: [http://localhost:8080/autoshop/v3/api-docs](http://localhost:8080/autoshop/v3/api-docs)
 
 As rotas protegidas usam **Bearer JWT**. Para obter um token, envie as credenciais do usuário no endpoint
@@ -97,7 +98,8 @@ Para executar os testes e gerar o relatório de cobertura JaCoCo:
 ./gradlew clean test jacocoTestReport
 ```
 
-Abra `build/reports/jacoco/test/html/index.html` no navegador para consultar o relatório detalhado. O relatório XML, útil para ferramentas de análise contínua, fica em `build/reports/jacoco/test/jacocoTestReport.xml`.
+Abra `build/reports/jacoco/test/html/index.html` no navegador para consultar o relatório detalhado. O relatório XML,
+útil para ferramentas de análise contínua, fica em `build/reports/jacoco/test/jacocoTestReport.xml`.
 
 Para compilar, executar os testes e gerar os relatórios de build:
 
@@ -133,10 +135,6 @@ docs/c4/                   Diagramas de contexto e containers
 - [Event Storming: acompanhamento de OS](docs/ddd/event_storming_acompanhamento_OS.pdf)
 - [Diagramas C4](docs/c4/)
 
-## Vídeo da entrega
-
-> **Link pendente:** adicione aqui o link do vídeo de apresentação/entrega.
-
 ## Serviços auxiliares
 
 | Serviço                 | Endereço                | Credenciais locais                    |
@@ -145,9 +143,6 @@ docs/c4/                   Diagramas de contexto e containers
 | Mailpit (interface)     | `http://localhost:8025` | Sem autenticação                      |
 | Mailpit (SMTP)          | `localhost:1025`        | Sem autenticação                      |
 | SonarQube, se iniciado  | `http://localhost:9000` | No primeiro acesso, `admin` / `admin` |
-
-Para iniciar SonarQube e seu banco auxiliar, use `docker compose up -d sonarqube db-sonar`. Dentro da rede do Compose, o
-host do PostgreSQL é `db`; a partir do host, use `localhost`.
 
 As configurações de SMTP aceitam `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_AUTH`,
 `SMTP_STARTTLS` e `SMTP_FROM`. A URL pública dos links de aprovação pode ser definida por `APPROVAL_BASE_URL`; o prazo
