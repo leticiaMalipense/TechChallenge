@@ -1,4 +1,4 @@
-package br.com.autoshop.integration;
+package br.com.autoshop.integrationTests;
 
 import br.com.autoshop.repository.PartRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -8,10 +8,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.*;
-import tools.jackson.databind.ObjectMapper;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -24,19 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PartHttpIntegrationTest {
+class PartHttpIntegrationTest extends BaseIntegrationTest {
 
     @Value("${local.server.port}")
     private int port;
 
     @Autowired
     private JwtEncoder jwtEncoder;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private PartRepository partRepository;
@@ -58,6 +56,7 @@ class PartHttpIntegrationTest {
         // Includes inactive records, which are hidden from the regular service queries.
         partRepository.findAll().stream().filter(part -> codes.contains(part.getCode()))
                 .forEach(partRepository::delete);
+        codes.clear();
     }
 
     @Test

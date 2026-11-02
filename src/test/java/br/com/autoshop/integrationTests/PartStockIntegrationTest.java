@@ -1,4 +1,4 @@
-package br.com.autoshop.integration;
+package br.com.autoshop.integrationTests;
 
 import br.com.autoshop.controller.dto.PartDTO;
 import br.com.autoshop.exception.RequestInvalidException;
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -22,8 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class PartStockIntegrationTest {
+class PartStockIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private PartService partService;
